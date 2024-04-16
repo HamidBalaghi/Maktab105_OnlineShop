@@ -25,6 +25,9 @@ class LogicalMixin(models.Model):
     objects = LogicalManager()
     global_objects = models.Manager()
 
+    def hard_delete(self):
+        super().delete()
+
     def delete(self, using=None, keep_parents=False):
         self.is_deleted = True
         self.save(update_fields=["is_deleted"])

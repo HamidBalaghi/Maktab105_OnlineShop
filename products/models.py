@@ -1,7 +1,9 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.core.exceptions import ValidationError
 from core.models import TimeStampMixin, LogicalMixin
 from utils.filepath import get_image_upload_path
+from utils.validators import validate_not_in_past
 
 
 class Product(LogicalMixin, TimeStampMixin):
@@ -52,3 +54,28 @@ class Category(LogicalMixin, TimeStampMixin):
         if self.parent:
             return f'{self.category} - parent: {self.parent.category}'
         return f'{self.category}'
+
+
+class Discount(LogicalMixin, TimeStampMixin):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='discount')
+    is_percent_type = models.BooleanField(default=True)
+    amount = models.DecimalField(max_digits=15, decimal_places=2, validators=[MinValueValidator(0.1)])
+    expiration_date = models.DateField(null=True, blank=True, validators=[validate_not_in_past])
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(is_percent_type=False) | models.Q(amount__lte=100),
+                name='percent_type_constraint'
+            ),
+            models.UniqueConstraint(
+                fields=['product'],
+                condition=models.Q(is_deleted=False),
+                name='Product can have just 1 discount'
+            )
+        ]
+
+    def __str__(self):
+        if self.is_percent_type:
+            return f'{self.product.name} - {self.amount}%'
+        return f'{self.product.name} - {self.amount}$'

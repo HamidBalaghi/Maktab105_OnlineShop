@@ -22,6 +22,11 @@ class Order(LogicalMixin, TimeStampMixin):
     def __str__(self):
         return f'{self.id}-{self.customer}-{self.is_paid}'
 
+    def clean(self):
+        super().clean()
+        if self.address.customer != self.customer:
+            raise ValidationError('Address must be related to this customer')
+
     # def validate_address_customer_match(self):
     #     if self.address and self.address.customer != self.customer:
     #         raise ValidationError("Address does not belong to the customer.")

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verification</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100">
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div>
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                Verify Your 6-Digit Code
+            </h2>
+        </div>
+        <form class="mt-8 space-y-6" action="" method="POST">
+            {% csrf_token %}
+            <div class="rounded-md shadow-sm -space-y-px">
+                <div>
+                    <label for="code" class="sr-only">6-Digit Code</label>
+                    <input id="code" name="code" type="text" autocomplete="off" required
+                           class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                           placeholder="Enter 6-Digit Code">
+                </div>
+                {% if form.non_field_errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.non_field_errors }}</p>
+                {% endif %}
+            </div>
+            <div>
+                <button type="submit"
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <!-- Heroicon name: solid/lock-closed -->
+                            <svg class="h-5 w-5 text-indigo-500 group-hover:text-indigo-400"
+                                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                 aria-hidden="true">
+                                <path fill-rule="evenodd"
+                                      d="M10 12a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                                <path fill-rule="evenodd"
+                                      d="M4 8a6 6 0 1112 0v4a6 6 0 11-12 0V8zm2-2a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2V6z"
+                                      clip-rule="evenodd"/>
+                            </svg>
+                        </span>
+                    Verify Code
+                </button>
+            </div>
+        </form>
+        <div class="text-center text-gray-700 text-sm">
+            Time Remaining:
+            <span id="timer" class="text-indigo-600 font-bold ml-1">05:00</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Set the countdown time (in seconds)
+    let countdownTime = 5 * 60;
+
+    // Function to update the countdown timer
+    function updateTimer() {
+        const timerElement = document.getElementById('timer');
+        const minutes = Math.floor(countdownTime / 60);
+        const seconds = countdownTime % 60;
+
+        // Display the time remaining
+        timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        // Decrease countdown time by 1 second
+        countdownTime--;
+
+        // Stop the countdown when it reaches 0
+        if (countdownTime < 0) {
+            clearInterval(timerInterval);
+            timerElement.textContent = 'Time Expired';
+        }
+    }
+
+    // Initial call to update timer
+    updateTimer();
+
+    // Update the timer every second
+    const timerInterval = setInterval(updateTimer, 1000);
+</script>
+</body>
+
+</html>
+
+
+
+

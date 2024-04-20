@@ -34,3 +34,19 @@ class User(LogicalMixin, AbstractBaseUser, TimeStampMixin):
     @property
     def is_staff(self):
         return self.is_admin
+
+
+class OTPModel(LogicalMixin, TimeStampMixin):
+    is_active = None
+    updated_at = None
+    code = models.PositiveIntegerField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="OTP_codes")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user'],
+                condition=models.Q(is_deleted=False),
+                name='unique_not_deleted_user_OTP'
+            )
+        ]

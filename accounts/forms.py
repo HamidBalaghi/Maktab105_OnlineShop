@@ -25,3 +25,7 @@ class CustomSignUpForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+
+class VerifyForm(forms.Form):
+    code = forms.CharField(label='Code', widget=forms.TextInput)

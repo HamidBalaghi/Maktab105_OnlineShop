@@ -1,5 +1,5 @@
 from django.contrib import admin
-from accounts.models import User
+from accounts.models import User,OTPModel
 
 
 class UserAccountAdmin(admin.ModelAdmin):
@@ -7,3 +7,10 @@ class UserAccountAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, UserAccountAdmin)
+
+
+class OTPModelAdmin(admin.ModelAdmin):
+    list_display = ('user', 'code', 'created_at')
+
+
+admin.site.register(OTPModel, OTPModelAdmin)

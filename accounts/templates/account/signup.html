@@ -13,16 +13,10 @@
                     <p class="text-red-500 text-sm mt-1">{{ form.email.errors }}</p>
                 {% endif %}
             </div>
+
             <div class="mb-4">
-                <label for="phone_number" class="block text-gray-700">Phone Number</label>
-                <input id="phone_number" type="text" name="phone_number" placeholder="Phone number" class="form-input mt-1 block w-full bg-green-100 border border-green-300 rounded-md focus:outline-none focus:border-green-500">
-                {% if form.phone_number.errors %}
-                    <p class="text-red-500 text-sm mt-1">{{ form.phone_number.errors }}</p>
-                {% endif %}
-            </div>
-            <div class="mb-4">
-                <label for="name" class="block text-gray-700">Name</label>
-                <input id="name" type="text" name="name" placeholder="Username" class="form-input mt-1 block w-full bg-green-100 border border-green-300 rounded-md focus:outline-none focus:border-green-500">
+                <label for="username" class="block text-gray-700">Username</label>
+                <input id="username" type="text" name="username" placeholder="Username" class="form-input mt-1 block w-full bg-green-100 border border-green-300 rounded-md focus:outline-none focus:border-green-500">
                 {% if form.name.errors %}
                     <p class="text-red-500 text-sm mt-1">{{ form.name.errors }}</p>
                 {% endif %}
@@ -43,7 +37,7 @@
             </div>
             <div class="flex items-center justify-between">
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Sign Up</button>
-                <a href="{% url 'accounts:login' %}" class="text-gray-200 hover:underline">Already have an account? Log in</a>
+                <a href="#" class="text-gray-200 hover:underline">Already have an account? Log in</a>
             </div>
         </form>
     </div>

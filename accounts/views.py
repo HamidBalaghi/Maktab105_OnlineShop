@@ -70,3 +70,9 @@ class UserActivationView(FormView):
         else:
             form.add_error(None, 'Invalid code or OTP expired.')
             return self.form_invalid(form)
+
+
+class CustomUserLogoutView(View):
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return redirect('accounts:login')

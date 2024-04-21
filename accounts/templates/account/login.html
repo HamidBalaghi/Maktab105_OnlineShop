@@ -37,14 +37,26 @@
     </div>
 
     <script>
-        document.getElementById("password").addEventListener("input", function () {
-            var password = this.value.trim();
+        // Function to update button text based on password field value
+        function updateButtonText() {
+            var password = document.getElementById("password").value.trim();
             var loginButton = document.getElementById("loginButton");
             if (password === "") {
                 loginButton.textContent = "Send Verification Code";
             } else {
                 loginButton.textContent = "Login";
             }
+        }
+
+        // Add event listeners
+        document.addEventListener("DOMContentLoaded", function () {
+            // Update button text initially
+            updateButtonText();
+
+            // Listen for input events on the password field
+            document.getElementById("password").addEventListener("input", function () {
+                updateButtonText();
+            });
         });
     </script>
 

@@ -126,6 +126,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ## Auth User Model ##
 AUTH_USER_MODEL = 'accounts.User'
+AUTHENTICATION_BACKENDS = [
+    'accounts.backend.ModelBackend',
+    'django.contrib.auth.backends.ModelBackend'
+]
 
 ##  Media ##
 MEDIA_URL = '/media/'
@@ -139,3 +143,5 @@ EMAIL_HOST_USER = 'balaghi.hamid.django@gmail.com'
 EMAIL_HOST_PASSWORD = 'ijht buao obbl sroe'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
+
+

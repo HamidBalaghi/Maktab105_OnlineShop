@@ -13,7 +13,7 @@ class User(LogicalMixin, AbstractBaseUser, TimeStampMixin):
         )
     ])
 
-    username = models.CharField(max_length=255)
+    username = models.CharField(max_length=255, unique=True)   ##todo:make a validator for username
     is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
 
@@ -38,8 +38,7 @@ class User(LogicalMixin, AbstractBaseUser, TimeStampMixin):
 
 class OTPModel(LogicalMixin, TimeStampMixin):
     is_active = None
-    updated_at = None
-    code = models.PositiveIntegerField()
+    code = models.PositiveIntegerField(null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="OTP_codes")
 
     class Meta:

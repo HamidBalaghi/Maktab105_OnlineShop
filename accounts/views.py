@@ -32,7 +32,13 @@ class CustomUserLoginView(View):
             password = form.cleaned_data.get('password')
             user = authenticate(request, username=username, password=password)
             if user and password:
-                login(request, user)
+                if user.is_active:
+                    login(request, user)
+                    return render(self.request, 'test/test.html', context={'message': 'login'})  ##todo:redirect to home
+                else:
+                    otp_sender(user)
+                    return redirect('accounts:activation', pk=user.pk)
+
             elif user:
                 otp_sender(user)
                 return redirect('accounts:activation', pk=user.pk)

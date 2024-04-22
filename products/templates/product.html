@@ -1,0 +1,85 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% block title %}{{ product.brand }} {% endblock %}
+
+{% block content %}
+    <!-- post_card.html -->
+    <div class="w-5/6 mx-auto bg-white rounded-xl shadow-md overflow-hidden p-4">
+        <div class="text-center">
+            <h2 class="text-lg font-bold">{{ product.brand }} / {{ product.name }}</h2>
+            <hr class="my-2 w-10/12 mx-auto border-t-2 border-blue-500">
+        </div>
+        <div class="flex justify-around mt-4">
+            <!-- Categories go here -->
+            {% for category in product.categories %}
+                <div class="category">{{ category.category }}</div>
+            {% endfor %}
+
+            <!-- Add more categories as needed -->
+        </div>
+        <hr class="w-9/12 mx-auto border-t-2 border-gray-400 mt-4">
+
+        <!-- Images related to the product -->
+        <div class="flex justify-around mt-4">
+            <!-- Images go here -->
+            {% for img in product.images %}
+                <div class="w-64 h-64 flex items-center justify-center border rounded-md overflow-hidden transform transition-transform duration-300 hover:scale-105">
+                    <img src="{{ img.image.url }}" alt="{{ img.image.url }}" class="object-cover h-full w-full">
+                </div>
+            {% endfor %}
+
+            <!-- Add more images as needed -->
+        </div>
+        <!-- Description of the product -->
+        <div class="mt-8">
+            <h3 class="text-lg font-semibold">Description</h3>
+            <p>{{ product.description }}</p>
+            <!-- Add more content for the description as needed -->
+        </div>
+
+        <!-- Div for capacity and pricing -->
+        <div class="flex justify-between w-5/6 mt-4">
+            <div class="w-3/4 flex justify-center">
+                {% if product.discount_amount %}
+                    <div class="flex flex-col justify-center items-center m-4">
+                        <div>Final Price</div>
+                        <div>{{ product.final_price }}</div>
+                    </div>
+                {% endif %}
+                <div class="flex flex-col justify-center items-center m-4">
+                    <div>Price</div>
+
+                    <div {% if product.discount_amount %}
+                        style="text-decoration: line-through;" {% endif %}>{{ product.price }}</div>
+
+                </div>
+                {% if product.discount_amount %}
+                    <div class="flex flex-col justify-center items-center m-4">
+                        <div>Discount</div>
+                        <div>{{ product.discount_amount }} {{ product.discount_type }}</div>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="w-1/4 flex flex-col justify-center items-center">
+                <div class="text-center">
+                    <div>Capacity</div>
+                    <div>{{ product.stock }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add to Cart button -->
+        <div class="text-center mt-8">
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Add to Cart
+            </button>
+        </div>
+
+
+    </div>
+
+
+{% endblock %}
+
+
+

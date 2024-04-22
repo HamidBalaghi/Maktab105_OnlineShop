@@ -4,6 +4,8 @@ from django.core.exceptions import ValidationError
 from core.models import TimeStampMixin, LogicalMixin
 from utils.filepath import get_image_upload_path
 from utils.validators import validate_not_in_past
+from django.utils import timezone
+from datetime import timedelta
 
 
 class Product(LogicalMixin, TimeStampMixin):
@@ -12,15 +14,67 @@ class Product(LogicalMixin, TimeStampMixin):
     description = models.TextField(null=True, blank=True)
     stock = models.PositiveIntegerField()
     categories = models.ManyToManyField('Category', related_name='products')
+    slug = models.SlugField(null=True, blank=True)
+
+    def clean(self):
+        super().clean()
+        self.slug = self.name
 
     def __str__(self):
         return f'{self.name} - stock={self.stock}'
 
+    def product_details(self):
+        temp = dict()
+        temp['name'] = self.name
+        temp['brand'] = self.brand
+        temp['description'] = self.description
+        temp['stock'] = self.stock
+        temp['categories'] = self.categories.all()
+        temp['price'] = self.product_price()
+        temp['final_price'] = self.final_price()
+        temp['images'] = self.get_images()
+        temp['discount_amount'] = self.get_discount()[0]
+        temp['discount_type'] = self.get_discount()[1]
+        return temp
+
+    def get_discount(self):
+        discount = self.discount.filter(is_deleted=False).first()
+        if discount:
+            if discount.is_percent_type:
+                return discount.amount, '%'
+            else:
+                return discount.amount, '$'
+        return None, None
+
+    def product_price(self):
+        return self.price.get(is_deleted=False).price
+
+    def final_price(self):
+        discount = self.discount.filter(is_deleted=False).first()
+        if discount is None or discount.expiration_date < timezone.now().date():
+            return self.product_price()
+        if discount.is_percent_type:
+            return self.product_price() * (1 - discount.amount / 100)
+        return self.product_price() - discount.amount
+
+    def get_images(self):
+        images = self.images.all()
+        return images
+
 
 class Price(LogicalMixin, TimeStampMixin):
     updated_at = None
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, related_name='price')
     price = models.DecimalField(max_digits=15, decimal_places=2)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['product'],
+                condition=models.Q(is_deleted=False),
+                name='Product can have just 1 price'
+            )
+        ]
 
     def __str__(self):
         return f'{self.product.name} - price={self.price}'
@@ -41,9 +95,11 @@ class Category(LogicalMixin, TimeStampMixin):
     parent = models.ForeignKey('self', on_delete=models.SET_NULL,
                                null=True, blank=True,
                                related_name='child_categories')
+    slug = models.SlugField(null=True, blank=True)
 
     def clean(self):
         super().clean()
+        self.slug = self.category
         if self.parent:
             if self.parent == self:
                 raise ValidationError("Parent category cannot be itself.")
@@ -60,7 +116,7 @@ class Discount(LogicalMixin, TimeStampMixin):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='discount')
     is_percent_type = models.BooleanField(default=True)
     amount = models.DecimalField(max_digits=15, decimal_places=2, validators=[MinValueValidator(0.1)])
-    expiration_date = models.DateField(null=True, blank=True, validators=[validate_not_in_past])
+    expiration_date = models.DateField()
 
     class Meta:
         constraints = [

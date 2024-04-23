@@ -39,7 +39,7 @@ class Product(LogicalMixin, TimeStampMixin):
 
     def get_discount(self):
         discount = self.discount.filter(is_deleted=False).first()
-        if discount:
+        if discount and discount.expiration_date >= timezone.now().date():
             if discount.is_percent_type:
                 return discount.amount, '%'
             else:

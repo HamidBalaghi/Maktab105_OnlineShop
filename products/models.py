@@ -61,6 +61,10 @@ class Product(LogicalMixin, TimeStampMixin):
         images = self.images.all()
         return images
 
+    @property
+    def get_first_image(self):
+        return self.get_images().first()
+
 
 class Price(LogicalMixin, TimeStampMixin):
     updated_at = None

@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>product</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body>
+{% extends "base/base.html" %}
+{% load static %}
+{% block title %}{{ product.brand }} {% endblock %}
+
+{% block content %}
 <div class="flex flex-col justify-center items-center mx-auto w-10/12 mt-4 ">
     {% for category_key, category in categories.items %}
         <div class="flex flex-col justify-center items-center border border-gray-400 p-4 rounded m-1 mb-4 bg-gray-100"
@@ -44,5 +40,5 @@
         </div>
     {% endfor %}
 </div>
-</body>
-</html>
+
+{% endblock %}

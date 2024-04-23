@@ -1,0 +1,41 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% block title %}{{ product.brand }} {% endblock %}
+
+{% block content %}
+
+    <div class="flex flex-col items-center justify-center text-center ">
+        <div class="flex flex-col items-center justify-center text-center mt-10 border rounded-md bg-gray-100"
+             style="width: 95%">
+            <h2 class="border-b-2 border-blue-500 mt-4 text-3xl font-bold">{{ category }}</h2>
+            <div class="grid grid-cols-3 gap-4 mt-4">
+                <!-- Loop through and generate divs -->
+                {% for product in products %}
+                    <div class="flex flex-col mx-2 border border-gray-300 p-4 rounded m-1 bg-blue-100 w-full"
+                         style="width: 300px;">
+                        <!-- Product name -->
+                        <h3 class="text-lg font-semibold mb-2">{{ product.name }}</h3>
+                        <!-- Product image -->
+                        <div style="width: 100%; height: 200px; overflow: hidden;" class="rounded">
+                            <img src="{{ product.get_first_image.image.url }}" alt="image"
+                                 style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="flex justify-around">
+                            <p class="pr-4"{% if product.product_price != product.final_price %}
+                               style="text-decoration: line-through;" {% else %}
+                               style="display: none;" {% endif %}>{{ product.product_price }}</p>
+                            <p class="pl-4">{{ product.final_price }}</p>
+                        </div>
+                        <!-- Add to Cart button -->
+                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2">Add to
+                            Cart
+                        </button>
+                        <!-- Product content goes here -->
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

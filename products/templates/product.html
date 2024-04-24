@@ -12,7 +12,7 @@
         <div class="flex justify-around mt-4">
             <!-- Categories go here -->
             {% for category in product.categories %}
-                <div class="category">{{ category.category }}</div>
+                <div class="category"><a href="{% url 'products:category_products' slug=category.slug pk=category.pk %}">{{ category.category }}</a></div>
             {% endfor %}
 
             <!-- Add more categories as needed -->

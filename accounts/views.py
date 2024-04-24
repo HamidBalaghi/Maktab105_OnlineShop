@@ -34,7 +34,7 @@ class CustomUserLoginView(View):
             if user and password:
                 if user.is_active:
                     login(request, user)
-                    return render(self.request, 'test/test.html', context={'message': 'login'})  ##todo:redirect to home
+                    return redirect('products:home')
                 else:
                     otp_sender(user)
                     return redirect('accounts:activation', pk=user.pk)
@@ -67,12 +67,9 @@ class UserActivationView(FormView):
                 self.new_user.save(update_fields=['is_active'])
                 Customer.objects.create(customer=self.new_user)
                 login(self.request, self.new_user)
-                return render(self.request, 'test/test.html', context={'message': 'valid'})  ##todo:redirect to home
+                return redirect('products:home')
             login(self.request, self.new_user)
-            return render(self.request,
-                          'test/test.html',
-                          context={'message': 'was activated'}
-                          )  ## temporary todo:redirect to home
+            return redirect('products:home')
         else:
             form.add_error(None, 'Invalid code or OTP expired.')
             return self.form_invalid(form)

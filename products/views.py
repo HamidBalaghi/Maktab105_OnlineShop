@@ -7,8 +7,6 @@ class ProductDetailView(DetailView):
     model = Product
     template_name = 'product.html'
 
-    # context_object_name = 'product'
-
     def dispatch(self, request, *args, **kwargs):
         self.product = get_object_or_404(Product, pk=self.kwargs.get('pk'), slug=self.kwargs.get('slug'))
 
@@ -28,7 +26,8 @@ class HomePageView(TemplateView):
         categories = Category.objects.all()
         context['categories'] = dict()
         for category in categories:
-            context['categories'][f"{category.category}"] = category.products.all()
+            context['categories'][f"{category.category}"] = category.products.filter(stock__gt=0).order_by(
+                '-created_at')
         return context
 
 
@@ -41,6 +40,9 @@ class CategoryProductView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['products'] = self.category.products.all()
+        available_available = self.category.products.filter(stock__gt=0).order_by('-created_at')
+        unavailable_available = self.category.products.filter(stock__lte=0).order_by('-created_at')
+
+        context['products'] = list(available_available) + list(unavailable_available)
         context['category'] = f"{self.kwargs.get('slug')}"
         return context

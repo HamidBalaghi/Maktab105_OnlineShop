@@ -3,9 +3,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from core.models import TimeStampMixin, LogicalMixin
 from utils.filepath import get_image_upload_path
-from utils.validators import validate_not_in_past
 from django.utils import timezone
-from datetime import timedelta
 
 
 class Product(LogicalMixin, TimeStampMixin):
@@ -52,10 +50,10 @@ class Product(LogicalMixin, TimeStampMixin):
     def final_price(self):
         discount = self.discount.filter(is_deleted=False).first()
         if discount is None or discount.expiration_date < timezone.now().date():
-            return self.product_price()
+            return round(self.product_price(), 2)
         if discount.is_percent_type:
-            return self.product_price() * (1 - discount.amount / 100)
-        return self.product_price() - discount.amount
+            return round(self.product_price() * (1 - discount.amount / 100), 2)
+        return round(self.product_price() - discount.amount, 2)
 
     def get_images(self):
         images = self.images.all()

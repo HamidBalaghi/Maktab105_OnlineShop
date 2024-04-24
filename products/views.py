@@ -8,7 +8,8 @@ class ProductDetailView(DetailView):
     template_name = 'product.html'
 
     def dispatch(self, request, *args, **kwargs):
-        self.product = get_object_or_404(Product, pk=self.kwargs.get('pk'), slug=self.kwargs.get('slug'))
+        self.product = get_object_or_404(Product, pk=self.kwargs.get('pk'), slug=self.kwargs.get('slug'),
+                                         is_active=True)
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -26,7 +27,8 @@ class HomePageView(TemplateView):
         categories = Category.objects.all()
         context['categories'] = dict()
         for category in categories:
-            context['categories'][f"{category.category}"] = category.products.filter(stock__gt=0).order_by(
+            context['categories'][f"{category.category}"] = category.products.filter(stock__gt=0,
+                                                                                     is_active=True).order_by(
                 '-created_at')
         return context
 
@@ -40,8 +42,8 @@ class CategoryProductView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        available_available = self.category.products.filter(stock__gt=0).order_by('-created_at')
-        unavailable_available = self.category.products.filter(stock__lte=0).order_by('-created_at')
+        available_available = self.category.products.filter(stock__gt=0, is_active=True).order_by('-created_at')
+        unavailable_available = self.category.products.filter(stock__lte=0, is_active=True).order_by('-created_at')
 
         context['products'] = list(available_available) + list(unavailable_available)
         context['category'] = f"{self.kwargs.get('slug')}"

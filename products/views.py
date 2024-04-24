@@ -27,9 +27,10 @@ class HomePageView(TemplateView):
         categories = Category.objects.all()
         context['categories'] = dict()
         for category in categories:
-            context['categories'][f"{category.category}"] = category.products.filter(stock__gt=0,
-                                                                                     is_active=True).order_by(
-                '-created_at')
+            context['categories'][category.id] = {
+                'name': category.category,
+                'products': category.products.filter(stock__gt=0, is_active=True).order_by('-created_at')
+            }
         return context
 
 
@@ -47,4 +48,6 @@ class CategoryProductView(TemplateView):
 
         context['products'] = list(available_available) + list(unavailable_available)
         context['category'] = f"{self.kwargs.get('slug')}"
+        context['children'] = self.category.child_categories.all()
+
         return context

@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import CreateView, FormView
 from accounts.forms import CustomSignUpForm, VerifyForm, CustomUserLoginForm
-from utils.otp import otp_sender, is_otp_expired
-from accounts.models import User, OTPModel
+from utils.otp import otp_sender
+from accounts.models import User
 from customers.models import Customer
 from django.contrib.auth import authenticate, login, logout
 from django.views import View
+from django.core.cache import cache
 
 
 class SignupView(CreateView):
@@ -60,19 +61,20 @@ class UserActivationView(FormView):
     def form_valid(self, form):
         code = form.cleaned_data.get('code')
         self.new_user.backend = 'django.contrib.auth.backends.ModelBackend'
-        otp_model = OTPModel.objects.get(user=self.new_user)
-        if code == str(otp_model.code) and not is_otp_expired(otp_model):
-            if not self.new_user.is_active:
-                self.new_user.is_active = True
-                self.new_user.save(update_fields=['is_active'])
-                Customer.objects.create(customer=self.new_user)
+        otp_model = cache.get(f"{self.new_user.email}")
+        if otp_model:
+            if code == str(otp_model):
+                if not self.new_user.is_active:
+                    self.new_user.is_active = True
+                    self.new_user.save(update_fields=['is_active'])
+                    Customer.objects.create(customer=self.new_user)
+
+                cache.delete(f"{self.new_user.email}")
                 login(self.request, self.new_user)
                 return redirect('products:home')
-            login(self.request, self.new_user)
-            return redirect('products:home')
-        else:
-            form.add_error(None, 'Invalid code or OTP expired.')
-            return self.form_invalid(form)
+
+        form.add_error(None, 'Invalid code or OTP expired.')
+        return self.form_invalid(form)
 
 
 class CustomUserLogoutView(View):

@@ -6,7 +6,7 @@ from core.models import TimeStampMixin, LogicalMixin
 
 
 class Customer(LogicalMixin, TimeStampMixin):
-    customer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    customer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='customers')
     phone_number = models.CharField(max_length=11, unique=True, null=True, blank=True)
     customer_type = models.SmallIntegerField(default=5)
 
@@ -27,7 +27,7 @@ class Address(LogicalMixin, TimeStampMixin):
     updated_at = None
     is_active = None
 
-    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     province = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     details = models.TextField()

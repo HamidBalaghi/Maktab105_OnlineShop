@@ -20,6 +20,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # 3Parties
+    'modeltranslation',
+    # 3Parties
+
     # local
     'accounts',
     'core',

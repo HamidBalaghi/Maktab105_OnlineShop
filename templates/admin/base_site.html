@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %} پنل مدیریت فروشگاه{% endblock %}
+
+{% block branding %}
+    <div id="site-name" style="display: flex; align-items: center;">
+        <a href="{% url 'admin:index' %}" style="display: flex; align-items: center; text-decoration: none;">
+            <img src="{% static 'admin/images/logo.png' %}" style="width: 100px; height: auto;">
+            <span style="margin-left: 10px;">Hamid Online Shop</span>
+        </a>
+    </div>
+    {% if user.is_anonymous %}
+        {% include "admin/color_theme_toggle.html" %}
+    {% endif %}
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

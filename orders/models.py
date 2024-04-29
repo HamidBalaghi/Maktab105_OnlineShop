@@ -8,16 +8,20 @@ from products.models import Product
 from products.models import Discount as ProductDiscount
 from utils.validators import validate_not_in_past
 from django.db.models import UniqueConstraint, Q
+from django.utils.translation import gettext_lazy as _
 
 
 class Order(LogicalMixin, TimeStampMixin):
-    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, related_name='orders')
-    address = models.ForeignKey(Address,
+    customer = models.ForeignKey(Customer,
+                                 verbose_name=_("Customer"),
+                                 on_delete=models.SET_NULL, null=True,
+                                 related_name='orders')
+    address = models.ForeignKey(Address, verbose_name=_("Address"),
                                 on_delete=models.SET_NULL,
                                 null=True,
                                 related_name='orders')
-    is_paid = models.BooleanField(default=False)
-    paid_time = models.DateTimeField(null=True, blank=True)
+    is_paid = models.BooleanField(verbose_name=_("Is paid"), default=False)
+    paid_time = models.DateTimeField(verbose_name=_("Paid time"), null=True, blank=True)
 
     def __str__(self):
         return f'{self.id}-{self.customer}-{self.is_paid}'
@@ -26,6 +30,10 @@ class Order(LogicalMixin, TimeStampMixin):
         super().clean()
         if self.address.customer != self.customer:
             raise ValidationError('Address must be related to this customer')
+
+    class Meta:
+        verbose_name = _("Order")
+        verbose_name_plural = _("Orders")
 
     # def validate_address_customer_match(self):
     #     if self.address and self.address.customer != self.customer:
@@ -53,10 +61,14 @@ class Order(LogicalMixin, TimeStampMixin):
 
 
 class OrderItem(LogicalMixin, TimeStampMixin):
-    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, related_name='order_items')
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
-    quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    order = models.ForeignKey(Order,
+                              verbose_name=_("Order"),
+                              on_delete=models.SET_NULL, null=True,
+                              related_name='order_items')
+    product = models.ForeignKey(Product, verbose_name=_("Product"), on_delete=models.SET_NULL, null=True)
+    quantity = models.PositiveIntegerField(verbose_name=_("Quantity"), validators=[MinValueValidator(1)])
     product_discount = models.ForeignKey(ProductDiscount,
+                                         verbose_name=_("Product discount"),
                                          on_delete=models.SET_NULL, null=True, blank=True,
                                          related_name='order_items')
 
@@ -68,6 +80,8 @@ class OrderItem(LogicalMixin, TimeStampMixin):
                 name='in not deleted order item: unique product and order '
             )
         ]
+        verbose_name = _("Order Item")
+        verbose_name_plural = _("Order Items")
 
     def clean(self):
         super().clean()
@@ -79,12 +93,20 @@ class OrderItem(LogicalMixin, TimeStampMixin):
 
 
 class DiscountCode(LogicalMixin, TimeStampMixin):
-    code = models.CharField(max_length=15)
-    is_percent_type = models.BooleanField(default=True)
-    amount = models.DecimalField(max_digits=15, decimal_places=2, validators=[MinValueValidator(0.1)])
-    max_discount = models.DecimalField(max_digits=15, decimal_places=2, validators=[MinValueValidator(1.0)])
-    is_used = models.BooleanField(default=False)
-    expiration_date = models.DateField(null=True, blank=True, validators=[validate_not_in_past])
+    code = models.CharField(verbose_name=_("Code"), max_length=15)
+    is_percent_type = models.BooleanField(verbose_name=_("Is percent type"),
+                                          default=True)
+    amount = models.DecimalField(verbose_name=_("Amount"),
+                                 max_digits=15, decimal_places=2,
+                                 validators=[MinValueValidator(0.1)])
+    max_discount = models.DecimalField(verbose_name=_("Max discount"),
+                                       max_digits=15, decimal_places=2,
+                                       validators=[MinValueValidator(1.0)])
+    is_used = models.BooleanField(verbose_name=_("Is used"),
+                                  default=False)
+    expiration_date = models.DateField(verbose_name=_("Expiration date"),
+                                       null=True, blank=True,
+                                       validators=[validate_not_in_past])
 
     class Meta:
         constraints = [
@@ -98,3 +120,5 @@ class DiscountCode(LogicalMixin, TimeStampMixin):
                 name='Discount code must be unique'
             )
         ]
+        verbose_name = _("Discount Code")
+        verbose_name_plural = _("Discount Codes")

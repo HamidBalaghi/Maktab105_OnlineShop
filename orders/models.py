@@ -24,7 +24,7 @@ class Order(LogicalMixin, TimeStampMixin):
     paid_time = models.DateTimeField(verbose_name=_("Paid time"), null=True, blank=True)
 
     def __str__(self):
-        return f'{self.id}-{self.customer}-{self.is_paid}'
+        return f'{self.id}-{self.customer}'
 
     def clean(self):
         super().clean()

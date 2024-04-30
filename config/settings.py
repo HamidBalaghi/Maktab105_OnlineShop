@@ -13,7 +13,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    # 'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -22,6 +22,9 @@ INSTALLED_APPS = [
 
     # 3Parties
     'modeltranslation',
+    "admin_interface",
+    "colorfield",
+    "django.contrib.admin",
     # 3Parties
 
     # local
@@ -156,3 +159,7 @@ CACHES = {
         }
     }
 }
+
+# ---- Django Admin Interface ---- #
+X_FRAME_OPTIONS = "SAMEORIGIN"
+SILENCED_SYSTEM_CHECKS = ["security.W019"]

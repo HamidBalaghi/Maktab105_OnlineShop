@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import CreateView, FormView
 from accounts.forms import CustomSignUpForm, VerifyForm, CustomUserLoginForm
-from utils.otp import otp_sender
 from accounts.models import User
 from customers.models import Customer
 from django.contrib.auth import authenticate, login, logout
 from django.views import View
 from django.core.cache import cache
+from .tasks import otp_sender
 
 
 class SignupView(CreateView):
@@ -15,7 +15,7 @@ class SignupView(CreateView):
 
     def form_valid(self, form):
         user = form.save(commit=True)
-        otp_sender(user=user)
+        otp_sender.delay(email=user.email, username=user.username)
         return redirect('accounts:activation', pk=user.pk)
 
 
@@ -37,11 +37,11 @@ class CustomUserLoginView(View):
                     login(request, user)
                     return redirect('products:home')
                 else:
-                    otp_sender(user)
+                    otp_sender.delay(email=user.email, username=user.username)
                     return redirect('accounts:activation', pk=user.pk)
 
             elif user:
-                otp_sender(user)
+                otp_sender.delay(email=user.email, username=user.username)
                 return redirect('accounts:activation', pk=user.pk)
             else:
                 form.add_error(None, 'Invalid email or password')

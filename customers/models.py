@@ -9,8 +9,10 @@ from django.utils.translation import gettext_lazy as _
 class Customer(LogicalMixin, TimeStampMixin):
     customer = models.ForeignKey(User, verbose_name=_("Customer"), on_delete=models.SET_NULL, null=True,
                                  related_name='customers')
-    phone_number = models.CharField(verbose_name=_("Phone number"), max_length=11, unique=True, null=True, blank=True)
+    phone_number = models.CharField(verbose_name=_("Phone number"), max_length=11,
+                                    null=True, blank=True)  # todo: add validator
     customer_type = models.SmallIntegerField(verbose_name=_("Customer type"), default=5)
+    full_name = models.CharField(verbose_name=_("Full name"), max_length=100, null=True, blank=True)
 
     class Meta:
         constraints = [

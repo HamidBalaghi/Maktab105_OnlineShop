@@ -1,0 +1,120 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %} Profile {% endblock %}
+{% block content %}
+    <div class="flex flex-col justify-center items-center mx-auto w-10/12 mt-4 ">
+        <!-- Personal Information Part -->
+        <div class="flex flex-col justify-center items-center border border-gray-400 p-4 rounded m-1 mb-4 bg-gray-100"
+             style="width: 95%">
+
+            <h2 class="text-xl font-semibold mb-4">Personal Information</h2>
+            <hr class="w-full border-gray-300 mb-4">
+
+            <!-- top -->
+            <div class="flex items-center justify-evenly flex-wrap">
+
+                <div class="flex w-1/3 mx-2  p-4 rounded m-1  mx-10" style="width: 400px;">
+                    <div class=" flex mt-2">
+                        <span class="px-2 font-bold">  Name:</span>
+                        <span class="px-2 italic" style="text-decoration: underline;"> {{ name }}</span>
+                    </div>
+                </div>
+
+                <div class="flex w-1/3 mx-2  p-4 rounded m-1  mx-10" style="width: 400px;">
+                    <div class=" flex mt-2 ">
+                        <span class="px-2 font-bold">  Phone number:</span>
+                        <span class="px-2 italic" style="text-decoration: underline;"> {{ phone }}</span>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /top -->
+
+            <!-- bot -->
+            <div class="flex items-center justify-evenly flex-wrap">
+
+                <div class="flex w-1/3 mx-2  p-4 rounded m-1  mx-10" style="width: 400px;">
+                    <div class=" flex mt-2">
+                        <span class="px-2 font-bold">  Email:</span>
+                        <span class="px-2 italic" style="text-decoration: underline;"> {{ email }}</span>
+                    </div>
+                </div>
+
+                <div class="flex w-1/3 mx-2  p-4 rounded m-1  mx-10" style="width: 400px;">
+                    <div class=" flex mt-2 ">
+                        <span class="px-2 font-bold">  Username:</span>
+                        <span class="px-2 italic" style="text-decoration: underline;"> {{ username }}</span>
+                    </div>
+                </div>
+
+            </div>
+            <!-- bot -->
+
+
+            <!-- Links -->
+            <div class="flex justify-between mt-4">
+
+                <a href="#" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-8 mx-4 rounded mr-2">
+                    Edit Information
+                </a>
+
+                <a href="#" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-8 mx-4 rounded mr-2">
+                    Change Password
+                </a>
+
+                <a href="#" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-8 mx-4 rounded">
+                    Change Email
+                </a>
+
+            </div>
+            <!-- /Links -->
+        </div>
+        <!-- /Personal Information Part -->
+
+
+        <!-- Order Part -->
+        <div class="flex flex-col justify-center items-center border border-gray-400 p-4 rounded m-1 mb-4 bg-gray-100"
+             style="width: 95%">
+
+            <h2 class="text-xl font-semibold mb-4">My Orders</h2>
+            <hr class="w-full border-gray-300 mb-4">
+
+            <div class="flex items-center justify-evenly flex-wrap">
+
+                <a href="#">
+                    <div class="flex w-1/3 mx-2 p-4 rounded m-1  mx-10" style="width: 200px;">
+                        <img src="{% static 'Profile/status-processing.svg' %}" alt="processing" class="mr-4">
+                        <div class=" flex flex-col mt-2">
+                            <span> 1 Order</span>
+                            <span> current</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="#">
+                    <div class="flex w-1/3 mx-2 p-4 rounded m-1  mx-10" style="width: 200px;">
+                        <img src="{% static 'Profile/status-delivered.svg' %}" alt="processing" class="mr-4">
+                        <div class=" flex flex-col mt-2 ">
+                            <span> 5 Orders</span>
+                            <span> delivered</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="#">
+                    <div class="flex w-1/3 mx-2 p-4 rounded m-1  mx-10" style="width: 200px;">
+                        <img src="{% static 'Profile/status-returned.svg' %}" alt="processing" class="mr-4">
+                        <div class=" flex flex-col mt-2 ">
+                            <span> 2 Orders</span>
+                            <span> returned</span>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+        <!-- /Order Part -->
+
+
+    </div>
+{% endblock %}

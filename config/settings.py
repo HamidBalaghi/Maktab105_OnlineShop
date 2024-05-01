@@ -153,12 +153,19 @@ EMAIL_USE_SSL = False
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
+        # 'LOCATION': 'redis://127.0.0.1:6379/1',
+        'LOCATION': 'redis://127.0.0.1:6379',
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
     }
 }
+
+# # Celery settings
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_BROKER_BACKEND = "redis://localhost:6379/1"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/2"
 
 # ---- Django Admin Interface ---- #
 X_FRAME_OPTIONS = "SAMEORIGIN"

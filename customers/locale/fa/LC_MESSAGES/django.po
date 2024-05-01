@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-29 20:21+0330\n"
+"POT-Creation-Date: 2024-05-01 23:08+0330\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: apps.py:8 models.py:24
+#: apps.py:8 models.py:25
 msgid "Customers"
 msgstr "مشتری ها"
 
-#: models.py:10 models.py:23 models.py:34
+#: models.py:10 models.py:24 models.py:35
 msgid "Customer"
 msgstr "مشتری"
 
@@ -34,30 +34,34 @@ msgstr "شماره تلفن"
 msgid "Customer type"
 msgstr "نوع مشتری"
 
-#: models.py:35
+#: models.py:14
+msgid "Full name"
+msgstr "نام کامل"
+
+#: models.py:36
 msgid "Province"
 msgstr "استان"
 
-#: models.py:36
+#: models.py:37
 msgid "City"
 msgstr "شهر"
 
-#: models.py:37
+#: models.py:38
 msgid "Details"
 msgstr "جزئیات"
 
-#: models.py:38
+#: models.py:39
 msgid "Post code"
 msgstr "کد پستی"
 
-#: models.py:44
+#: models.py:45
 msgid "Used in Order"
 msgstr "استفاده شده"
 
-#: models.py:56
+#: models.py:57
 msgid "Address"
 msgstr "آدرس"
 
-#: models.py:57
+#: models.py:58
 msgid "Addresses"
 msgstr "آدرس ها"

@@ -44,10 +44,10 @@ class CategoryProductView(NavbarMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        available_available = self.category.products.filter(stock__gt=0, is_active=True).order_by('-created_at')
-        unavailable_available = self.category.products.filter(stock__lte=0, is_active=True).order_by('-created_at')
+        available = self.category.products.filter(stock__gt=0, is_active=True).order_by('-created_at')
+        unavailable = self.category.products.filter(stock__lte=0, is_active=True).order_by('-created_at')
 
-        context['products'] = list(available_available) + list(unavailable_available)
+        context['products'] = list(available) + list(unavailable)
         context['category'] = f"{self.kwargs.get('slug')}"
         context['children'] = self.category.child_categories.all()
 

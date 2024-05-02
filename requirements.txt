@@ -11,3 +11,5 @@ celery==5.4.0
 
 
 # Admin theme :: RUN : $python manage.py loaddata admin_interface_theme_uswds.json
+# Admin theme :: RUN : $python manage.py loaddata admin_interface_theme_bootstrap.json
+# Admin theme :: RUN : $python manage.py loaddata admin_interface_theme_foundation.json

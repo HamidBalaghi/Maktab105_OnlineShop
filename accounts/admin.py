@@ -9,5 +9,8 @@ class UserAccountAdmin(admin.ModelAdmin):
     ordering = ('is_deleted', 'is_active', 'username', 'created_at')
     date_hierarchy = 'created_at'
 
+    def get_queryset(self, request):
+        return User.global_objects.all()
+
 
 admin.site.register(User, UserAccountAdmin)

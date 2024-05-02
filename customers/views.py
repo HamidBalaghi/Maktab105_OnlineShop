@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect
-from django.views import View
 from django.views.generic import TemplateView
 from .forms import EditProfileForm, CustomPasswordChangeForm
 from .models import Customer
@@ -9,9 +8,10 @@ from accounts.tasks import otp_sender
 from django.core.cache import cache
 from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
+from core.mixin import NavbarMixin
 
 
-class EditProfileView(View):
+class EditProfileView(NavbarMixin, TemplateView):
     template_name = 'customers/editprofile.html'
 
     def dispatch(self, request, *args, **kwargs):
@@ -31,9 +31,16 @@ class EditProfileView(View):
 
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['initial'] = self.temp
+        return context
+
     def get(self, request, *args, **kwargs):
         form = EditProfileForm()
-        return render(request, self.template_name, {'form': form, 'initial': self.temp})
+        context = self.get_context_data()
+        context['form'] = form
+        return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
         form = EditProfileForm(request.POST)
@@ -52,14 +59,14 @@ class EditProfileView(View):
                 self.user.save()
             except IntegrityError:
                 form.add_error('username', "Username already exists")
-                return render(request, self.template_name, {'form': form, 'initial': self.temp})
+                return self.render_to_response({'form': form, 'initial': self.temp})
 
             # Change email field
             if new_email != self.user.email:
                 check_email = User.objects.filter(email=new_email).first()
                 if check_email:
                     form.add_error('email', "Email already exists!")
-                    return render(request, self.template_name, {'form': form, 'initial': self.temp})
+                    return self.render_to_response({'form': form, 'initial': self.temp})
                 else:
 
                     # Redirect to Verification
@@ -67,10 +74,10 @@ class EditProfileView(View):
                     cache.set(f"{self.user.pk}", new_email, timeout=300)
                     return redirect('accounts:activation', pk=self.user.pk)
             return redirect('customers:profile')
-        return render(request, self.template_name, {'form': form, 'initial': self.temp})
+        return self.render_to_response({'form': form, 'initial': self.temp})
 
 
-class ProfileView(TemplateView):
+class ProfileView(NavbarMixin, TemplateView):
     template_name = 'customers/profile.html'
     context_object_name = 'profile'
 
@@ -83,7 +90,7 @@ class ProfileView(TemplateView):
         return context
 
 
-class CustomPasswordChangeView(PasswordChangeView):
+class CustomPasswordChangeView(NavbarMixin, PasswordChangeView):
     form_class = CustomPasswordChangeForm
     template_name = 'customers/change-password.html'
     success_url = reverse_lazy('customers:profile')

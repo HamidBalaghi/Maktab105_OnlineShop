@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 from django.utils.translation import gettext_lazy as _
+from celery.schedules import crontab
+from datetime import datetime, timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -166,6 +168,13 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_BROKER_URL = "redis://localhost:6379/0"
 CELERY_BROKER_BACKEND = "redis://localhost:6379/1"
 CELERY_RESULT_BACKEND = "redis://localhost:6379/2"
+
+CELERY_BEAT_SCHEDULE = {
+    'delete-every-ten-minutes': {
+        'task': 'accounts.tasks.delete_old_records',
+        'schedule': timedelta(hours=24),
+    },
+}
 
 # ---- Django Admin Interface ---- #
 X_FRAME_OPTIONS = "SAMEORIGIN"

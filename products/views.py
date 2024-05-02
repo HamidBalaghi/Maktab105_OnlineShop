@@ -1,9 +1,10 @@
 from django.views.generic import DetailView, TemplateView
 from products.models import Product, Category
 from django.shortcuts import get_object_or_404, redirect
+from core.mixin import NavbarMixin
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(NavbarMixin, DetailView):
     model = Product
     template_name = 'product.html'
 
@@ -19,7 +20,7 @@ class ProductDetailView(DetailView):
         return context
 
 
-class HomePageView(TemplateView):
+class HomePageView(NavbarMixin, TemplateView):
     template_name = 'home.html'
 
     def get_context_data(self, **kwargs):
@@ -34,7 +35,7 @@ class HomePageView(TemplateView):
         return context
 
 
-class CategoryProductView(TemplateView):
+class CategoryProductView(NavbarMixin, TemplateView):
     template_name = 'category_products.html'
 
     def dispatch(self, request, *args, **kwargs):
@@ -51,3 +52,12 @@ class CategoryProductView(TemplateView):
         context['children'] = self.category.child_categories.all()
 
         return context
+
+#
+# class TestView(APIView):
+#     def get_queryset(self):
+#         user = self.request.user
+#         if self.request.method == "GET" and "view_order" in user.groups.values_list("permissions", flat=True):
+#             return Order.objects.all()
+#         if self.request.method == "GET" and "view_order_mine" in user.groups.values_list("permissions", flat=True):
+#             return Order.objects.filter(customer=user)

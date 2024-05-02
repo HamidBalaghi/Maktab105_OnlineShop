@@ -1,11 +1,8 @@
 from django import forms
-from accounts.models import User
 
 
-class EditProfileForm(forms.ModelForm):
+class EditProfileForm(forms.Form):
     name = forms.CharField(label='name', widget=forms.TextInput(), required=False)
     phone = forms.CharField(label='phone', widget=forms.TextInput(), required=False)
-
-    class Meta:
-        model = User
-        fields = ['username', ]
+    email = forms.EmailField(label='phone', widget=forms.TextInput())
+    username = forms.CharField(label='phone', widget=forms.TextInput())

@@ -4,16 +4,11 @@
             <ul class="flex space-x-4 items-center">
                 <li>
                     {% if logged_in_user %}
-                        <a href="#" class="text-white flex items-center">
-                            <img src="{{ logged_in_user_image }}" alt="iamge"
-                                 class="w-8 h-8 rounded-full mr-2"> <!-- Image to the left -->
-                            <span>h</span> <!-- Name to the right -->
+                        <a href="{% url 'customers:profile' %}" class="text-white flex items-center">
+                            <span>{{ logged_in_user }}</span> <!-- Name to the right -->
                         </a>
                     {% endif %}
                 </li>
-                {% if logged_in_user %}
-                    <li><a href="#" class="text-white">Profile</a></li>
-                {% endif %}
                 <li><a href="{% url 'products:home' %}" class="text-white">Categories</a></li>
             </ul>
         </div>

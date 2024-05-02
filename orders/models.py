@@ -105,8 +105,7 @@ class DiscountCode(LogicalMixin, TimeStampMixin):
     is_used = models.BooleanField(verbose_name=_("Is used"),
                                   default=False)
     expiration_date = models.DateField(verbose_name=_("Expiration date"),
-                                       null=True, blank=True,
-                                       validators=[validate_not_in_past])
+                                       null=True, blank=True)
 
     class Meta:
         constraints = [

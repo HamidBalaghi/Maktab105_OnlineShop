@@ -1,11 +1,14 @@
 from django.shortcuts import render, redirect
 from django.views import View
-from .forms import EditProfileForm
+from django.views.generic import TemplateView
+from .forms import EditProfileForm, CustomPasswordChangeForm
 from .models import Customer
 from accounts.models import User
 from django.db import IntegrityError
 from accounts.tasks import otp_sender
 from django.core.cache import cache
+from django.contrib.auth.views import PasswordChangeView
+from django.urls import reverse_lazy
 
 
 class EditProfileView(View):
@@ -65,3 +68,22 @@ class EditProfileView(View):
                     return redirect('accounts:activation', pk=self.user.pk)
             return redirect('customers:profile')
         return render(request, self.template_name, {'form': form, 'initial': self.temp})
+
+
+class ProfileView(TemplateView):
+    template_name = 'customers/profile.html'
+    context_object_name = 'profile'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['email'] = self.request.user.email
+        context['username'] = self.request.user.username
+        context['name'] = Customer.objects.get(customer=self.request.user).full_name
+        context['phone'] = Customer.objects.get(customer=self.request.user).phone_number
+        return context
+
+
+class CustomPasswordChangeView(PasswordChangeView):
+    form_class = CustomPasswordChangeForm
+    template_name = 'customers/change-password.html'
+    success_url = reverse_lazy('customers:profile')

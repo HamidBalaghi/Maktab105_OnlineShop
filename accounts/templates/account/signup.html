@@ -1,0 +1,46 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %} Sign Up {% endblock %}
+{% block content %}
+<div class=" flex justify-center items-center h-screen" style=" background-image: url({% static 'BackgroundImages/bgos2.jpg' %}); background-size: cover ; background-repeat: no-repeat; background-position: center; background-attachment: fixed;">
+    <div class="bg-gradient-to-r from-blue-400 via-blue-300 to-gray p-8 rounded-lg shadow-md w-full max-w-md ">
+        <h2 class="text-2xl mb-6 text-center">Sign Up</h2>
+        <form method="post" action="" class="space-y-4" novalidate>
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="email" class="block text-gray-700">Email</label>
+                <input id="email" type="email" name="email" placeholder="Email" class="form-input mt-1 block w-full bg-green-100 border border-green-300 rounded-md focus:outline-none focus:border-green-500">
+                {% if form.email.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.email.errors }}</p>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                <label for="username" class="block text-gray-700">Username</label>
+                <input id="username" type="text" name="username" placeholder="Username" class="form-input mt-1 block w-full bg-green-100 border border-green-300 rounded-md focus:outline-none focus:border-green-500">
+                {% if form.username.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.username.errors }}</p>
+                {% endif %}
+            </div>
+            <div class="mb-4">
+                <label for="password1" class="block text-gray-700">Password</label>
+                <input id="password1" type="password" name="password1" class="form-input mt-1 block w-full bg-green-100 border border-green-300 rounded-md focus:outline-none focus:border-green-500">
+                {% if form.password1.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.password1.errors }}</p>
+                {% endif %}
+            </div>
+            <div class="mb-4">
+                <label for="password2" class="block text-gray-700">Confirm Password</label>
+                <input id="password2" type="password" name="password2" class="form-input mt-1 block w-full bg-green-100 border border-green-300 rounded-md focus:outline-none focus:border-green-500">
+                {% if form.password2.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.password2.errors }}</p>
+                {% endif %}
+            </div>
+            <div class="flex items-center justify-between">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Sign Up</button>
+                <a href="{% url 'accounts:login' %}" class="text-gray-200 hover:underline">Already have an account? Log in</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

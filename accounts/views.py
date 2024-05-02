@@ -61,6 +61,21 @@ class UserActivationView(FormView):
     def form_valid(self, form):
         code = form.cleaned_data.get('code')
         self.new_user.backend = 'django.contrib.auth.backends.ModelBackend'
+
+        # change email verification
+        if cache.get(f"{self.pk}") and self.request.user.pk == self.pk:
+            new_email = cache.get(f"{self.pk}")
+            sent_code = cache.get(f"{new_email}")
+
+            if code == str(sent_code):
+                self.new_user.email = new_email
+                self.new_user.save()
+                cache.delete(f"{new_email}")
+                cache.delete(f"{self.pk}")
+                login(self.request, self.new_user)
+                return redirect('products:home')
+
+        # login and signup validation
         otp_model = cache.get(f"{self.new_user.email}")
         if otp_model:
             if code == str(otp_model):

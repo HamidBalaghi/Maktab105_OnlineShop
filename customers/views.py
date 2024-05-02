@@ -63,3 +63,5 @@ class EditProfileView(View):
                     otp_sender.delay(email=new_email, username=new_username)
                     cache.set(f"{self.user.pk}", new_email, timeout=300)
                     return redirect('accounts:activation', pk=self.user.pk)
+            return redirect('customers:profile')
+        return render(request, self.template_name, {'form': form, 'initial': self.temp})

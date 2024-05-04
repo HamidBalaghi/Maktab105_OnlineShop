@@ -28,6 +28,7 @@ class Product(LogicalMixin, TimeStampMixin):
 
     def product_details(self):
         temp = dict()
+        temp['product_id'] = self.id
         temp['name'] = self.name
         temp['brand'] = self.brand
         temp['description'] = self.description

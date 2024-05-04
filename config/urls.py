@@ -9,6 +9,7 @@ urlpatterns = i18n_patterns(
     path('', include('accounts.urls')),
     path('', include('products.urls')),
     path('', include('customers.urls')),
+    path('', include('orders.urls')),
 )
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

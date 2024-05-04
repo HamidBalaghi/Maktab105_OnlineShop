@@ -170,7 +170,7 @@ CELERY_BROKER_BACKEND = "redis://localhost:6379/1"
 CELERY_RESULT_BACKEND = "redis://localhost:6379/2"
 
 CELERY_BEAT_SCHEDULE = {
-    'delete-every-ten-minutes': {
+    'delete-every-24-hours': {
         'task': 'accounts.tasks.delete_old_records',
         'schedule': timedelta(hours=24),
     },

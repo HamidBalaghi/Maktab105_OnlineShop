@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, CreateView
 from .forms import EditProfileForm, CustomPasswordChangeForm, NewAddressForm
-from .models import Customer
+from .models import Customer, Address
 from accounts.models import User
 from django.db import IntegrityError
 from accounts.tasks import otp_sender
@@ -112,3 +112,13 @@ class AddNewAddressView(LoginRequiredMixin, NavbarMixin, CreateView):
 
         super().form_valid(form)
         return super().form_valid(form)
+
+
+class ShowAddressView(LoginRequiredMixin, NavbarMixin, TemplateView):
+    template_name = 'customers/addresses.html'
+
+    def get_context_data(self, **kwargs):
+        customer = Customer.objects.get(customer=self.request.user)
+        context = super().get_context_data(**kwargs)
+        context['addresses'] = customer.addresses.all().order_by('-created_at')
+        return context

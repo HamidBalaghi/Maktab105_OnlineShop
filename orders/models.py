@@ -18,7 +18,7 @@ class Order(LogicalMixin, TimeStampMixin):
                                  related_name='orders')
     address = models.ForeignKey(Address, verbose_name=_("Address"),
                                 on_delete=models.SET_NULL,
-                                null=True,
+                                null=True, blank=True,
                                 related_name='orders')
     is_paid = models.BooleanField(verbose_name=_("Is paid"), default=False)
     paid_time = models.DateTimeField(verbose_name=_("Paid time"), null=True, blank=True)
@@ -28,8 +28,9 @@ class Order(LogicalMixin, TimeStampMixin):
 
     def clean(self):
         super().clean()
-        if self.address.customer != self.customer:
-            raise ValidationError('Address must be related to this customer')
+        if self.address:
+            if self.address.customer != self.customer:
+                raise ValidationError('Address must be related to this customer')
 
     class Meta:
         verbose_name = _("Order")

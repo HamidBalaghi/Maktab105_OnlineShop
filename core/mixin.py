@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AnonymousUser
+from django.shortcuts import redirect
 
 
 class NavbarMixin:
@@ -11,3 +12,10 @@ class NavbarMixin:
         else:
             context['current_url'] = self.request.build_absolute_uri()
         return context
+
+
+class LoginRequiredMixin:
+    def dispatch(self, request, *args, **kwargs):
+        if isinstance(request.user, AnonymousUser) or not request.user.is_authenticated:
+            return redirect('accounts:login')
+        return super().dispatch(request, *args, **kwargs)

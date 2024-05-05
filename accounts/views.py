@@ -8,6 +8,7 @@ from django.views import View
 from django.core.cache import cache
 from .tasks import otp_sender
 from core.mixin import NavbarMixin
+from orders.models import Order
 
 
 class SignupView(NavbarMixin, CreateView):
@@ -93,8 +94,8 @@ class UserActivationView(NavbarMixin, FormView):
                 if not self.new_user.is_active:
                     self.new_user.is_active = True
                     self.new_user.save(update_fields=['is_active'])
-                    Customer.objects.create(customer=self.new_user)
-                    # Order.objects.create()
+                    customer = Customer.objects.create(customer=self.new_user)
+                    Order.objects.create(customer=customer)
 
                 cache.delete(f"{self.new_user.email}")
                 login(self.request, self.new_user)

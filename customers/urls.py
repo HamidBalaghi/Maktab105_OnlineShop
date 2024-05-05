@@ -8,4 +8,5 @@ urlpatterns = [
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('change-password/', views.CustomPasswordChangeView.as_view(), name='change-password'),
     path('new-address/', views.AddNewAddressView.as_view(), name='new-address'),
+    path('address/', views.ShowAddressView.as_view(), name='address'),
 ]

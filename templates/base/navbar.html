@@ -17,10 +17,54 @@
             {% if logged_in_user %}
                 <a href="{% url 'accounts:logout' %}" class="text-white text-xl font-bold hover:text-red-500">Logout</a>
             {% else %}
-                <a href="{% url 'accounts:login' %}" class="text-white text-xl font-bold pr-2 pb-2 hover:text-red-500">Login</a>
-                <a href="{% url 'accounts:signup' %}" class="text-white text-xl font-bold hover:text-red-500">Signup</a>
+                <div class="flex ">
+                    <form id="loginForm" method="get" action="{% url 'accounts:login' %}">
+                        <!-- Use Django template variable to set the cookie -->
+                        <button type="submit" id="loginButton2"
+                                class="text-white text-xl font-bold pr-2 pb-2 hover:text-red-500 px-2">
+                            Login
+                        </button>
+                    </form>
+
+                    <form id="signupForm" method="get" action="{% url 'accounts:signup' %}">
+                        <!-- Use Django template variable to set the cookie -->
+                        <button type="submit" id="signupButton"
+                                class="text-white text-xl font-bold pr-2 pb-2 hover:text-red-500 px-2">
+                            Signup
+                        </button>
+                    </form>
+                </div>
+
             {% endif %}
         </div>
     </div>
     <div id="messages"></div>
+
+
+    <script>
+        document.getElementById("loginButton2").addEventListener("click", function () {
+            // Get the current_url value
+            var currentUrl = "{{ current_url }}";
+
+            // Check if the current URL contains any of the keywords
+            if (currentUrl.indexOf('login') === -1 && currentUrl.indexOf('signup') === -1 && currentUrl.indexOf('activation') === -1) {
+                // Set the cookie
+                document.cookie = "next_url=" + currentUrl + ";path=/";
+            }
+        });
+    </script>
+
+
+    <script>
+        document.getElementById("signupButton").addEventListener("click", function () {
+            // Get the value you want to save in the cookie
+            var currentUrl = "{{ current_url }}";
+
+            // Check if the current URL contains any of the keywords
+            if (currentUrl.indexOf('login') === -1 && currentUrl.indexOf('signup') === -1 && currentUrl.indexOf('activation') === -1) {
+                // Set the cookie
+                document.cookie = "next_url=" + currentUrl + ";path=/";
+            }
+        });
+    </script>
 </nav>

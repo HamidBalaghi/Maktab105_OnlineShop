@@ -11,6 +11,16 @@
                     {% endif %}
                 </li>
                 <li><a href="{% url 'products:home' %}" class="text-white hover:text-red-500">Categories</a></li>
+                <li>
+                    <form id="card" method="get"
+                          action="{% if logged_in_user %} <!-- todo:card URL --> {% else %} {% url 'accounts:login' %} {% endif %}">
+                        <!-- Use Django template variable to set the cookie -->
+                        <button type="submit" id="cardButton"
+                                class="text-white hover:text-red-500">
+                            🛒Card
+                        </button>
+                    </form>
+                </li>
             </ul>
         </div>
         <div>
@@ -66,5 +76,20 @@
                 document.cookie = "next_url=" + currentUrl + ";path=/";
             }
         });
+    </script>
+
+    <script>
+        {% if not logged_in_user %}
+            document.getElementById("cardButton").addEventListener("click", function () {
+                // Get the current_url value
+                var currentUrl = "<!-- todo : card URL -->";
+
+                // Check if the current URL contains any of the keywords
+                if (currentUrl.indexOf('login') === -1 && currentUrl.indexOf('signup') === -1 && currentUrl.indexOf('activation') === -1) {
+                    // Set the cookie
+                    document.cookie = "next_url=" + currentUrl + ";path=/";
+                }
+            });
+        {% endif %}
     </script>
 </nav>

@@ -33,7 +33,10 @@ class Address(LogicalMixin, TimeStampMixin):
     updated_at = None
     is_active = None
 
-    customer = models.ForeignKey(Customer, verbose_name=_("Customer"), on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer,
+                                 verbose_name=_("Customer"),
+                                 on_delete=models.CASCADE,
+                                 related_name='addresses')
     province = models.CharField(verbose_name=_("Province"), max_length=100)
     city = models.CharField(verbose_name=_("City"), max_length=100)
     details = models.TextField(verbose_name=_("Details"), )

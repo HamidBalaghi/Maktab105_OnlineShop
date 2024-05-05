@@ -14,7 +14,9 @@ class OrderAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
 
     def get_customer_address(self, obj):
-        return f"{obj.address.province}/{obj.address.city}"
+        if obj.address:
+            return f"{obj.address.province}/{obj.address.city}"
+        return None
 
     get_customer_address.short_description = 'Address'
 

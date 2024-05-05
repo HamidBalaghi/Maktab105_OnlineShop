@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.hashers import check_password
 
+from customers.models import Address
+
 
 class EditProfileForm(forms.Form):
     name = forms.CharField(label='name', widget=forms.TextInput(), required=False)
@@ -33,3 +35,9 @@ class CustomPasswordChangeForm(PasswordChangeForm):
         if commit:
             user.save()
         return user
+
+
+class NewAddressForm(forms.ModelForm):
+    class Meta:
+        model = Address
+        fields = ('province', 'city', 'details', 'post_code')

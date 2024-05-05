@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView
-from .forms import EditProfileForm, CustomPasswordChangeForm
+from django.views.generic import TemplateView, CreateView
+from .forms import EditProfileForm, CustomPasswordChangeForm, NewAddressForm
 from .models import Customer
 from accounts.models import User
 from django.db import IntegrityError
@@ -8,7 +8,8 @@ from accounts.tasks import otp_sender
 from django.core.cache import cache
 from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
-from core.mixin import NavbarMixin
+from core.mixin import NavbarMixin, LoginRequiredMixin
+from django.contrib.auth.models import AnonymousUser
 
 
 class EditProfileView(NavbarMixin, TemplateView):
@@ -16,6 +17,10 @@ class EditProfileView(NavbarMixin, TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.user = request.user
+        # Login Required
+        if isinstance(request.user, AnonymousUser) or not request.user.is_authenticated:
+            return redirect('accounts:login')
+
         self.customer = Customer.objects.get(customer=self.user)
         # Initialize fields of form
         email = self.user.email
@@ -77,7 +82,7 @@ class EditProfileView(NavbarMixin, TemplateView):
         return self.render_to_response({'form': form, 'initial': self.temp})
 
 
-class ProfileView(NavbarMixin, TemplateView):
+class ProfileView(LoginRequiredMixin, NavbarMixin, TemplateView):
     template_name = 'customers/profile.html'
     context_object_name = 'profile'
 
@@ -90,7 +95,20 @@ class ProfileView(NavbarMixin, TemplateView):
         return context
 
 
-class CustomPasswordChangeView(NavbarMixin, PasswordChangeView):
+class CustomPasswordChangeView(LoginRequiredMixin, NavbarMixin, PasswordChangeView):
     form_class = CustomPasswordChangeForm
     template_name = 'customers/change-password.html'
     success_url = reverse_lazy('customers:profile')
+
+
+class AddNewAddressView(LoginRequiredMixin, NavbarMixin, CreateView):
+    template_name = 'customers/new-address.html'
+    form_class = NewAddressForm
+    success_url = reverse_lazy('customers:profile')
+
+    def form_valid(self, form):
+        customer = Customer.objects.get(customer=self.request.user)
+        form.instance.customer = customer
+
+        super().form_valid(form)
+        return super().form_valid(form)

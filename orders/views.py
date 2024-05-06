@@ -1,6 +1,10 @@
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.views import View
 import json
+from django.views.generic import UpdateView
+from core.mixin import LoginRequiredMixin, NavbarMixin
+from customers.models import Customer
+from orders.models import Order
 from products.models import Product
 
 
@@ -42,3 +46,19 @@ class AddToOrderItem(View):
                 return JsonResponse({'response': 'Not enough products'})
         else:
             return JsonResponse({'response': 'Product ID not provided'})
+
+
+class CartView(LoginRequiredMixin, NavbarMixin, UpdateView):
+    template_name = 'orders/cart.html'
+    model = Order
+    context_object_name = 'order'
+    fields = '__all__'
+
+    def get_object(self):
+        customer = Customer.objects.get(customer=self.request.user)
+        return Order.objects.get(is_paid=False, customer=customer)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['order'] = self.get_object().order_details()
+        return context

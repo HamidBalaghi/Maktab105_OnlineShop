@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, CreateView
+from django.shortcuts import redirect, get_object_or_404
+from django.views.generic import TemplateView, CreateView, View
 from .forms import EditProfileForm, CustomPasswordChangeForm, NewAddressForm
 from .models import Customer, Address
 from accounts.models import User
@@ -10,6 +10,7 @@ from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
 from core.mixin import NavbarMixin, LoginRequiredMixin
 from django.contrib.auth.models import AnonymousUser
+from .permissions import DeleteAddressPermission
 
 
 class EditProfileView(NavbarMixin, TemplateView):
@@ -104,7 +105,7 @@ class CustomPasswordChangeView(LoginRequiredMixin, NavbarMixin, PasswordChangeVi
 class AddNewAddressView(LoginRequiredMixin, NavbarMixin, CreateView):
     template_name = 'customers/new-address.html'
     form_class = NewAddressForm
-    success_url = reverse_lazy('customers:profile')
+    success_url = reverse_lazy('customers:address')
 
     def form_valid(self, form):
         customer = Customer.objects.get(customer=self.request.user)
@@ -122,3 +123,11 @@ class ShowAddressView(LoginRequiredMixin, NavbarMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['addresses'] = customer.addresses.all().order_by('-created_at')
         return context
+
+
+class DeleteAddressView(DeleteAddressPermission, NavbarMixin, View):
+    
+    def get(self, request, *args, **kwargs):
+        address = get_object_or_404(Address, pk=self.kwargs['pk'])
+        address.delete()
+        return redirect('customers:address')

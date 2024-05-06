@@ -10,10 +10,13 @@
             <h2 class="text-xl font-semibold mb-4"> Addresses </h2>
             <hr class="w-full border-gray-300 mb-4">
             <a href="{% url 'customers:new-address' %}"
-               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-8 mx-4 rounded mr-2 flex items-center justify-center mb-8"
-               style="width: 250px;">
+               class="text-white font-bold py-2 px-8 mx-4 rounded mr-2 flex items-center justify-center mb-4"
+               style="width: 250px; background-color: #4ade80; transition: background-color 0.3s;"
+               onmouseover="this.style.backgroundColor='#65a30d';"
+               onmouseout="this.style.backgroundColor='#4ade80';">
                 Add New Address
             </a>
+            <hr class="my-2 w-10/12 mx-auto border-t-2 border-blue-500 mb-4">
 
             {% for address in addresses %}
 
@@ -63,11 +66,14 @@
                         </div>
 
                         <div class="flex justify-between mt-4">
-                            <a href=""
-                               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-8 mx-4 rounded mr-2 flex items-center justify-center"
-                               style="width: 250px;">
+                            <a href="{% url 'customers:delete-address' pk=address.pk %}"
+                               class="text-white font-bold py-2 px-8 mx-4 rounded mr-2 flex items-center justify-center"
+                               style="width: 250px; background-color: #ea580c; transition: background-color 0.3s;"
+                               onmouseover="this.style.backgroundColor='#b91c1c';"
+                               onmouseout="this.style.backgroundColor='#ea580c';">
                                 Delete Address
                             </a>
+
                         </div>
                     </div>
 

@@ -36,6 +36,13 @@ class Order(LogicalMixin, TimeStampMixin):
         verbose_name = _("Order")
         verbose_name_plural = _("Orders")
 
+    def order_details(self):
+        temp = dict()
+        temp['owner'] = self.customer.full_name if self.customer.full_name else self.customer.customer.username
+        temp['items'] = list()
+        for order_item in self.order_items.all():
+            temp['items'].append(order_item.order_item_details())
+        return temp
     # def validate_address_customer_match(self):
     #     if self.address and self.address.customer != self.customer:
     #         raise ValidationError("Address does not belong to the customer.")
@@ -91,6 +98,18 @@ class OrderItem(LogicalMixin, TimeStampMixin):
 
     def __str__(self):
         return f'{self.order} - {self.product} - {self.quantity}'
+
+    def order_item_details(self):
+        temp = dict()
+        temp['name'] = f"{self.product.brand}/{self.product.name}"
+        temp['product_price'] = self.product.prices.first().price
+        temp['product_id'] = self.product.id
+        temp['discount_unit'] = self.product.prices.first().discount_amount()
+        temp['quantity'] = self.quantity
+        temp['subtotal'] = temp['quantity'] * temp['product_price']
+        temp['total_discount'] = temp['quantity'] * temp['discount_unit']
+        temp['total_price'] = temp['subtotal'] - temp['total_discount']
+        return temp
 
 
 class DiscountCode(LogicalMixin, TimeStampMixin):

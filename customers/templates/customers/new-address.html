@@ -6,7 +6,7 @@
     <div class="flex justify-center items-center h-screen"
          style="background-image: url({% static 'BackgroundImages/bgos2.jpg' %}); background-size: cover; background-repeat: no-repeat; background-position: center; background-attachment: fixed;">
         <div class="bg-gradient-to-r from-blue-400 via-blue-300 to-gray p-8 rounded-lg shadow-md w-full max-w-md">
-            <h2 class="text-2xl mb-6 text-center text-white">Add New Address</h2>
+            <h2 class="text-2xl mb-6 text-center text-black">Add New Address</h2>
             <form method="post" class="space-y-4" novalidate>
                 {% csrf_token %}
                 {% for field in form %}

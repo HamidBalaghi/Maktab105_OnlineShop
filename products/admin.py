@@ -161,6 +161,22 @@ class DiscountAdmin(admin.ModelAdmin):
 
     mark_as_category_discount.short_description = "Mark selected discounts as expired"
 
+    def delete_model(self, request, obj):
+        if obj.is_deleted:
+            obj.hard_delete()
+        else:
+            obj.is_deleted = True
+            obj.save()
+
+    def delete_queryset(self, request, queryset):
+        for obj in queryset:
+            if obj.is_deleted:
+                obj.hard_delete()
+
+            else:
+                obj.is_deleted = True
+                obj.save()
+
     def get_queryset(self, request):
         return Discount.global_objects.all()
 

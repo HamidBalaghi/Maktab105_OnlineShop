@@ -6,6 +6,7 @@ from core.mixin import LoginRequiredMixin, NavbarMixin
 from customers.models import Customer
 from orders.models import Order
 from products.models import Product
+from .mixin import CartMixin
 
 
 class AddToOrderItem(View):
@@ -48,7 +49,7 @@ class AddToOrderItem(View):
             return JsonResponse({'response': 'Product ID not provided'})
 
 
-class CartView(LoginRequiredMixin, NavbarMixin, UpdateView):
+class CartView(LoginRequiredMixin, CartMixin, NavbarMixin, UpdateView):
     template_name = 'orders/cart.html'
     model = Order
     context_object_name = 'order'

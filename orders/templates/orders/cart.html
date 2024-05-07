@@ -41,7 +41,7 @@
                                     _ {% endif %}</td>
                                 <td class="p-2 text-center flex items-center justify-center">
 
-                                    <button type="submit" name="deleteItem_{{ item.id }}"
+                                    <button type="submit" name="deleteItem_{{ item.product_id }}"
                                             class="hover:bg-gray-300 text-gray-800 font-bold py-1 px-2 mr-1 rounded-l">
                                         🗑️
                                     </button>
@@ -52,7 +52,7 @@
                                     </button>
 
                                     <span class="px-4">{{ item.quantity }}</span>
-                                    <button type="submit" name="increaseQuantity_{{ item.id }}"
+                                    <button type="submit" name="increaseQuantity_{{ item.product_id }}"
                                             class="bg-gray-200 border hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded-r">
                                         +
                                     </button>

@@ -46,6 +46,23 @@ class OrderItemAdmin(admin.ModelAdmin):
 
     get_product_name.short_description = 'Product'
 
+    def delete_model(self, request, obj):
+        if obj.is_deleted:
+            obj.hard_delete()
+        else:
+            obj.is_deleted = True
+            obj.save()
+
+    def delete_queryset(self, request, queryset):
+        print(1)
+        for obj in queryset:
+            if obj.is_deleted:
+                obj.hard_delete()
+
+            else:
+                obj.is_deleted = True
+                obj.save()
+
     def get_queryset(self, request):
         return OrderItem.global_objects.all()
 

@@ -25,13 +25,29 @@ class OrderAdmin(admin.ModelAdmin):
 
     get_customer_name.short_description = 'Customer Name'
 
+    def delete_model(self, request, obj):
+        if obj.is_deleted:
+            obj.hard_delete()
+        else:
+            obj.is_deleted = True
+            obj.save()
+
+    def delete_queryset(self, request, queryset):
+        for obj in queryset:
+            if obj.is_deleted:
+                obj.hard_delete()
+
+            else:
+                obj.is_deleted = True
+                obj.save()
+
     def get_queryset(self, request):
         return Order.global_objects.all()
 
 
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ('get_order_owner', 'get_product_name', 'quantity', 'is_deleted')
-    list_filter = ('is_deleted',)
+    list_filter = ('is_deleted', 'order')
     search_fields = ('order__customer__customer__username', 'product__name', 'product__brand')
     ordering = ('is_deleted', '-created_at')
     date_hierarchy = 'created_at'
@@ -54,7 +70,6 @@ class OrderItemAdmin(admin.ModelAdmin):
             obj.save()
 
     def delete_queryset(self, request, queryset):
-        print(1)
         for obj in queryset:
             if obj.is_deleted:
                 obj.hard_delete()

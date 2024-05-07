@@ -42,7 +42,17 @@ class Order(LogicalMixin, TimeStampMixin):
         temp['items'] = list()
         for order_item in self.order_items.all():
             temp['items'].append(order_item.order_item_details())
+
+        temp['final_order_subtotal'] = self.calculate_order_total_prices('subtotal')
+        temp['final_order_discount'] = self.calculate_order_total_prices('total_discount')
+        temp['final_order_price'] = temp['final_order_subtotal'] - temp['final_order_discount']
         return temp
+
+    def calculate_order_total_prices(self, field):
+        total_price = 0
+        for order_item in self.order_items.all():
+            total_price += order_item.order_item_details()[field]
+        return total_price
     # def validate_address_customer_match(self):
     #     if self.address and self.address.customer != self.customer:
     #         raise ValidationError("Address does not belong to the customer.")

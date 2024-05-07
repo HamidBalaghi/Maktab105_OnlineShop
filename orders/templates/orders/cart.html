@@ -27,9 +27,17 @@
                         <tbody>
                         {% for item in order.items %}
                             <tr>
-                                <td class="p-2 text-center">{{ item.name }}</td>
+                                <td class="p-2 text-center">
+                                    <a href="{% url 'products:product_detail' slug=item.slug pk=item.product_id %}"
+                                       style="text-decoration: none;"
+                                       onmouseover="style.textDecoration='underline';"
+                                       onmouseout="style.textDecoration='none';">
+                                        {{ item.name }}
+                                    </a>
+                                </td>
                                 <td class="p-2 text-center">{{ item.product_price }}</td>
-                                <td class="p-2 text-center">{% if item.discount_unit %} {{ item.discount_unit }} {% else %}
+                                <td class="p-2 text-center">{% if item.discount_unit %}
+                                    {{ item.discount_unit }} {% else %}
                                     _ {% endif %}</td>
                                 <td class="p-2 text-center flex items-center justify-center">
 

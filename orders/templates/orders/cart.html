@@ -1,6 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
-{% block title %} Profile {% endblock %}
+{% block title %} Cart {% endblock %}
 {% block content %}
 
 
@@ -62,11 +62,11 @@
                             <td class="p-2 text-center"></td>
                             <td class="p-2 text-center font-bold pl-10 italic">Total:</td>
                             <td class="p-2 text-center font-bold"
-                                style="text-decoration: underline;">{{ order.raw_price }}</td>
+                                style="text-decoration: underline;">{{ order.final_order_subtotal }}</td>
                             <td class="p-2 text-center font-bold"
-                                style="text-decoration: underline;">{{ order.discount }}</td>
+                                style="text-decoration: underline;">{{ order.final_order_discount }}</td>
                             <td class="p-2 text-center font-bold"
-                                style="text-decoration: underline;">{{ order.total_price }}</td>
+                                style="text-decoration: underline;">{{ order.final_order_price }}</td>
                         </tr>
 
 

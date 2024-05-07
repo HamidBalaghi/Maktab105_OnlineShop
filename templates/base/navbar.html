@@ -13,7 +13,7 @@
                 <li><a href="{% url 'products:home' %}" class="text-white hover:text-red-500">Categories</a></li>
                 <li>
                     <form id="card" method="get"
-                          action="{% if logged_in_user %} <!-- todo:card URL --> {% else %} {% url 'accounts:login' %} {% endif %}">
+                          action="{% if logged_in_user %} {% url 'orders:cart' %} {% else %} {% url 'accounts:login' %} {% endif %}">
                         <!-- Use Django template variable to set the cookie -->
                         <button type="submit" id="cardButton"
                                 class="text-white hover:text-red-500">
@@ -82,7 +82,7 @@
         {% if not logged_in_user %}
             document.getElementById("cardButton").addEventListener("click", function () {
                 // Get the current_url value
-                var currentUrl = "<!-- todo : card URL -->";
+                var currentUrl = "http://127.0.0.1:8000/en/cart/";
 
                 // Check if the current URL contains any of the keywords
                 if (currentUrl.indexOf('login') === -1 && currentUrl.indexOf('signup') === -1 && currentUrl.indexOf('activation') === -1) {

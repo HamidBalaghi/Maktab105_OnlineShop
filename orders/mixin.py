@@ -36,10 +36,10 @@ class CartMixin:
             else:
                 if order_item.quantity > order_item.product.stock:
                     order_item.quantity = order_item.product.stock
-                    if order_item.product.is_active:
-                        order_item.save()
-                    else:
-                        order_item.delete()
+                if order_item.product.is_active:
+                    order_item.save()
+                else:
+                    order_item.delete()
 
         for new_product_id, new_product_quantity in selected_product.items():
             try:

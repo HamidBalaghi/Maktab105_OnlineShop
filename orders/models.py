@@ -35,6 +35,7 @@ class Order(LogicalMixin, TimeStampMixin):
     class Meta:
         verbose_name = _("Order")
         verbose_name_plural = _("Orders")
+        # todo: add constraint(just 1 not paid order)
 
     def order_details(self):
         temp = dict()
@@ -119,6 +120,7 @@ class OrderItem(LogicalMixin, TimeStampMixin):
         temp['subtotal'] = temp['quantity'] * temp['product_price']
         temp['total_discount'] = temp['quantity'] * temp['discount_unit']
         temp['total_price'] = temp['subtotal'] - temp['total_discount']
+        temp['slug'] = self.product.slug
         return temp
 
 

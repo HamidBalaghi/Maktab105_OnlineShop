@@ -174,6 +174,11 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'accounts.tasks.delete_old_records',
         'schedule': timedelta(hours=24),
     },
+    'delete-expired-product-discounts': {
+        'task': 'products.tasks.delete_expired_discounts',
+        'schedule': timedelta(hours=24),
+        # 'schedule': crontab(hour=0, minute=1),
+    },
 }
 
 # ---- Django Admin Interface ---- #

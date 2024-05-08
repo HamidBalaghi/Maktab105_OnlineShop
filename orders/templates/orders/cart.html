@@ -10,87 +10,101 @@
                 <span>{{ order.owner }}</span> <span class="text-gray-300">Hamid Online Shop </span></div>
 
             <div class="p-4">
-                <form method="post">
-                    {% csrf_token %}
-                    <table class="w-full border border-gray-200">
-                        <thead>
-                        <tr class="text-gray-500 font-bold">
-                            <th class="p-2 text-center">Product Name</th>
-                            <th class="p-2 text-center">Price/Unit</th>
-                            <th class="p-2 text-center">Discount/Unit</th>
-                            <th class=" text-center pl-9">Quantity</th>
-                            <th class="p-2 text-center">Subtotal</th>
-                            <th class="p-2 text-center">Discount</th>
-                            <th class="p-2 text-center">Total Price</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for item in order.items %}
-                            <tr>
-                                <td class="p-2 text-center">
-                                    <a href="{% url 'products:product_detail' slug=item.slug pk=item.product_id %}"
-                                       style="text-decoration: none;"
-                                       onmouseover="style.textDecoration='underline';"
-                                       onmouseout="style.textDecoration='none';">
-                                        {{ item.name }}
-                                    </a>
-                                </td>
-                                <td class="p-2 text-center">{{ item.product_price }}</td>
-                                <td class="p-2 text-center">{% if item.discount_unit %}
-                                    {{ item.discount_unit }} {% else %}
-                                    _ {% endif %}</td>
-                                <td class="p-2 text-center flex items-center justify-center">
 
-                                    <button type="submit" name="deleteItem_{{ item.product_id }}"
+
+                <table class="w-full border border-gray-200">
+                    <thead>
+                    <tr class="text-gray-500 font-bold">
+                        <th class="p-2 text-center">Product Name</th>
+                        <th class="p-2 text-center">Price/Unit</th>
+                        <th class="p-2 text-center">Discount/Unit</th>
+                        <th class=" text-center pl-9">Quantity</th>
+                        <th class="p-2 text-center">Subtotal</th>
+                        <th class="p-2 text-center">Discount</th>
+                        <th class="p-2 text-center">Total Price</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in order.items %}
+                        <tr>
+                            <td class="p-2 text-center">
+                                <a href="{% url 'products:product_detail' slug=item.slug pk=item.product_id %}"
+                                   style="text-decoration: none;"
+                                   onmouseover="style.textDecoration='underline';"
+                                   onmouseout="style.textDecoration='none';">
+                                    {{ item.name }}
+                                </a>
+                            </td>
+                            <td class="p-2 text-center">{{ item.product_price }}</td>
+                            <td class="p-2 text-center">{% if item.discount_unit %}
+                                {{ item.discount_unit }} {% else %}
+                                _ {% endif %}</td>
+                            <td class="p-2 text-center flex items-center justify-center">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <button type="submit"
                                             class="hover:bg-gray-300 text-gray-800 font-bold py-1 px-2 mr-1 rounded-l">
                                         🗑️
                                     </button>
+                                    <input type="hidden" name="deleteItem" value="{{ item.product_id }}">
+                                </form>
 
-                                    <button type="submit" name="decreaseQuantity_{{ item.product_id }}"
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" name="decrease" value="{{ item.product_id }}"
                                             class="bg-gray-200 border hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded-l">
                                         -
                                     </button>
+                                </form>
 
-                                    <span class="px-4">{{ item.quantity }}</span>
-                                    <button type="submit" name="increaseQuantity_{{ item.product_id }}"
+                                <span class="px-4">{{ item.quantity }}</span>
+
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" name="increase" value="{{ item.product_id }}"
                                             class="bg-gray-200 border hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded-r">
                                         +
                                     </button>
-                                </td>
+                                </form>
+                            </td>
 
-                                <td class="p-2 text-center">{{ item.subtotal }}</td>
-                                <td class="p-2 text-center">{{ item.total_discount }}</td>
-                                <td class="p-2 text-center">{{ item.total_price }}</td>
-                            </tr>
-
-                        {% endfor %}
-                        <tr>
-                            <td class="p-2 text-center"></td>
-                            <td class="p-2 text-center"></td>
-                            <td class="p-2 text-center"></td>
-                            <td class="p-2 text-center font-bold pl-10 italic">Total:</td>
-                            <td class="p-2 text-center font-bold"
-                                style="text-decoration: underline;">{{ order.final_order_subtotal }}</td>
-                            <td class="p-2 text-center font-bold"
-                                style="text-decoration: underline;">{{ order.final_order_discount }}</td>
-                            <td class="p-2 text-center font-bold"
-                                style="text-decoration: underline;">{{ order.final_order_price }}</td>
+                            <td class="p-2 text-center">{{ item.subtotal }}</td>
+                            <td class="p-2 text-center">{{ item.total_discount }}</td>
+                            <td class="p-2 text-center">{{ item.total_price }}</td>
                         </tr>
 
+                    {% endfor %}
+                    <tr>
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center font-bold pl-10 italic">Total:</td>
+                        <td class="p-2 text-center font-bold"
+                            style="text-decoration: underline;">{{ order.final_order_subtotal }}</td>
+                        <td class="p-2 text-center font-bold"
+                            style="text-decoration: underline;">{{ order.final_order_discount }}</td>
+                        <td class="p-2 text-center font-bold"
+                            style="text-decoration: underline;">{{ order.final_order_price }}</td>
+                    </tr>
 
-                        </tbody>
-                    </table>
-                </form>
+
+                    </tbody>
+                </table>
+
 
                 <div class="flex justify-end p-4">
-                    <form method="post">
+                    <form id="clearForm" method="post">
                         {% csrf_token %}
-                        <button type="button"
-                                class="bg-yellow-500 text-white px-4 py-2 rounded shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 mr-3">
+                        <button id="clearButton" type="submit" name="clearOrder"
+                                class="mx-2 bg-yellow-500 text-white px-4 py-2 rounded shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
                             Clear
                         </button>
-                        <button type="button"
-                                class="bg-blue-500 text-white px-4 py-2 rounded shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
+                    </form>
+
+                    <form id="payForm" method="post">
+                        {% csrf_token %}
+                        <button id="payButton" type="submit" name="payment"
+                                class="mx-2 bg-blue-500 text-white px-4 py-2 rounded shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
                             Pay Now
                         </button>
                     </form>
@@ -101,5 +115,15 @@
         </div>
     </div>
 
-
+    <script>
+        document.getElementById('clearButton').addEventListener('click', function (event) {
+            if (confirm('Are you sure you want to clear?')) {
+                // If confirmed, submit the form
+                document.getElementById('clearForm').submit();
+            } else {
+                // If canceled, prevent the default form submission
+                event.preventDefault();
+            }
+        });
+    </script>
 {% endblock %}

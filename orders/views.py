@@ -1,10 +1,10 @@
 from django.http import JsonResponse
 from django.views import View
 import json
-from django.views.generic import UpdateView
+from django.views.generic import UpdateView, TemplateView
 from core.mixin import LoginRequiredMixin, NavbarMixin
 from customers.models import Customer
-from orders.models import Order
+from orders.models import Order, OrderItem
 from products.models import Product
 from .mixin import CartMixin
 
@@ -63,3 +63,63 @@ class CartView(LoginRequiredMixin, CartMixin, NavbarMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['order'] = self.get_object().order_details()
         return context
+
+    def post(self, request, *args, **kwargs):
+        order = self.get_object()
+
+        # Take user's request
+        user_request = list(request.POST)[1]
+
+        # Take product ID , if request was 'delete', 'decrease' or 'increase'
+        if (dict(request.POST)[user_request][0]).isnumeric():
+            product_id = dict(request.POST)[user_request][0]
+
+        if user_request == 'deleteItem':
+            try:
+                item = OrderItem.objects.get(order=order, product_id=int(product_id), is_deleted=False)
+                item.delete()
+                response_message = f"{item.product.brand}/{item.product.name} successfully deleted"
+                return JsonResponse({'response': response_message})
+            except:
+                pass
+
+        elif user_request == 'decrease':
+            try:
+                item = OrderItem.objects.get(order=order, product_id=int(product_id), is_deleted=False)
+                if item.quantity > 1:
+                    item.quantity -= 1
+                    item.save(update_fields=["quantity"])
+                    response_message = f"{item.product.brand}/{item.product.name} decreased"
+                    return JsonResponse({'response': response_message})
+                else:
+                    item.delete()
+                    response_message = f"{item.product.brand}/{item.product.name} removed from cart"
+                    return JsonResponse({'response': response_message})
+            except:
+                pass
+
+        elif user_request == 'increase':
+            try:
+                item = OrderItem.objects.get(order=order, product_id=int(product_id), is_deleted=False)
+                if item.quantity + 1 <= item.product.stock:
+                    item.quantity += 1
+                    item.save(update_fields=["quantity"])
+                    response_message = f"{item.product.brand}/{item.product.name} increased"
+                    return JsonResponse({'message': response_message})
+                else:
+                    response_message = f"Not enough {item.product.brand}/{item.product.name}"
+                    return JsonResponse({'message': response_message})
+            except:
+                pass
+
+        elif user_request == 'clearOrder':
+            # Hard Delete
+            order.order_items.all().delete()
+            response_message = 'Order has been cleared'
+            return JsonResponse({'message': response_message})
+
+        elif user_request == 'payment':
+            pass  # ToDo: config payment
+
+        response = super().post(request, *args, **kwargs)
+        return response

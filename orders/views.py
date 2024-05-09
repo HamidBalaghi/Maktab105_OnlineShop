@@ -105,10 +105,10 @@ class CartView(LoginRequiredMixin, CartMixin, NavbarMixin, UpdateView):
                     item.quantity += 1
                     item.save(update_fields=["quantity"])
                     response_message = f"{item.product.brand}/{item.product.name} increased"
-                    return JsonResponse({'message': response_message})
+                    return JsonResponse({'response': response_message})
                 else:
                     response_message = f"Not enough {item.product.brand}/{item.product.name}"
-                    return JsonResponse({'message': response_message})
+                    return JsonResponse({'response': response_message})
             except:
                 pass
 
@@ -116,7 +116,7 @@ class CartView(LoginRequiredMixin, CartMixin, NavbarMixin, UpdateView):
             # Hard Delete
             order.order_items.all().delete()
             response_message = 'Order has been cleared'
-            return JsonResponse({'message': response_message})
+            return JsonResponse({'response': response_message})
 
         elif user_request == 'payment':
             pass  # ToDo: config payment

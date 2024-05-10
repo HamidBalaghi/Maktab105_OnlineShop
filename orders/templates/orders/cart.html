@@ -128,20 +128,21 @@
 
 
 
-    {#    <script>#}
-    {#        document.getElementById('clearButton').addEventListener('click', function (event) {#}
-    {#            if (confirm('Are you sure you want to clear?')) {#}
-    {#                // If confirmed, submit the form#}
-    {#                document.getElementById('clearForm').submit();#}
-    {#            } else {#}
-    {#                // If canceled, prevent the default form submission#}
-    {#                event.preventDefault();#}
-    {#            }#}
-    {#        });#}
-    {#    </script>#}
 
     <script>
-        function clearRows() {
+        document.getElementById('clearButton').addEventListener('click', function (event) {
+            if (confirm('Are you sure you want to clear?')) {
+                // If confirmed, call the clearRows2 function
+                clearRows2();
+            } else {
+                // If canceled, prevent the default form submission
+                event.preventDefault();
+            }
+        });
+    </script>
+
+    <script>
+        function clearRows2() {
             const finalOrderSubtotal = document.getElementById('final_order_subtotal');
             const finalOrderDiscount = document.getElementById('final_order_discount');
             const finalOrderPrice = document.getElementById('final_order_price');

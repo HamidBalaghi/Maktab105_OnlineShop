@@ -3,7 +3,7 @@ from products.models import Product
 from .models import Order, OrderItem
 
 
-class CartMixin:
+class CartInitializerMixin:
 
     def dispatch(self, request, *args, **kwargs):
 

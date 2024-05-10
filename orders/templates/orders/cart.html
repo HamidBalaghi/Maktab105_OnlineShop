@@ -103,7 +103,7 @@
                 <div class="flex justify-end p-4">
                     <form id="clearForm" method="post">
                         {% csrf_token %}
-                        <button id="clearButton" type="button" name="clearOrder" onclick="clearRows()"
+                        <button id="clearButton" type="button" name="clearOrder"
                                 class="mx-2 bg-yellow-500 text-white px-4 py-2 rounded shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
 
                             Clear
@@ -114,7 +114,7 @@
                         {% csrf_token %}
                         <button id="payButton" type="button" name="payment"
                                 class="mx-2 bg-blue-500 text-white px-4 py-2 rounded shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
-                            Pay Now
+                            Checkout Now
                         </button>
                     </form>
 
@@ -123,7 +123,6 @@
             </div>
         </div>
     </div>
-    {% block js %} {% endblock %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 
@@ -133,7 +132,7 @@
         document.getElementById('clearButton').addEventListener('click', function (event) {
             if (confirm('Are you sure you want to clear?')) {
                 // If confirmed, call the clearRows2 function
-                clearRows2();
+                clearCart();
             } else {
                 // If canceled, prevent the default form submission
                 event.preventDefault();
@@ -142,7 +141,7 @@
     </script>
 
     <script>
-        function clearRows2() {
+        function clearCart() {
             const finalOrderSubtotal = document.getElementById('final_order_subtotal');
             const finalOrderDiscount = document.getElementById('final_order_discount');
             const finalOrderPrice = document.getElementById('final_order_price');

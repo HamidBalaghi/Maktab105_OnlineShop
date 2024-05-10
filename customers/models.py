@@ -49,7 +49,7 @@ class Address(LogicalMixin, TimeStampMixin):
     has_paid_order = models.BooleanField(verbose_name=_("Used in Order"), default=False)
 
     def __str__(self):
-        return f"{self.customer} - {self.province} - {self.city}"
+        return f"{self.province} - {self.city} - {self.post_code}"
 
     def delete(self):
         if self.has_paid_order:

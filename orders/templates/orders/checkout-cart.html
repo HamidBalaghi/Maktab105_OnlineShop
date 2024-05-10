@@ -1,0 +1,149 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %} CheckOut {% endblock %}
+{% block content %}
+
+
+    <div class="min-h-screen bg-gray-100 p-4 mt-4">
+        <div class="max-w-6xl mx-auto shadow-md rounded-lg overflow-hidden">
+            <div class="bg-gray-800 flex justify-between text-white p-4 text-lg font-bold">
+                <span>{{ order.owner }}</span> <span class="text-gray-300">Hamid Online Shop </span></div>
+
+            <div class="p-4">
+
+
+                <table class="w-full border border-gray-400 my-2 bg-gray-200">
+                    <thead>
+                    <tr class="text-gray-500 font-bold ">
+                        <th class="p-2 text-center">Product Name</th>
+                        <th class="p-2 text-center">Price/Unit</th>
+                        <th class="p-2 text-center">Discount/Unit</th>
+                        <th class=" text-center pl-9">Quantity</th>
+                        <th class="p-2 text-center">Subtotal</th>
+                        <th class="p-2 text-center">Discount</th>
+                        <th class="p-2 text-center">Total Price</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in order.items %}
+                        <tr class="row_{{ item.product_id }}">
+                            <td class="p-2 text-center">
+                                <a href="{% url 'products:product_detail' slug=item.slug pk=item.product_id %}"
+                                   style="text-decoration: none;"
+                                   onmouseover="style.textDecoration='underline';"
+                                   onmouseout="style.textDecoration='none';">
+                                    {{ item.name }}
+                                </a>
+                            </td>
+                            <td id="product_price_{{ item.product_id }}"
+                                class="p-2 text-center">{{ item.product_price }}</td>
+                            <td id="product_discount_{{ item.product_id }}" class="p-2 text-center">
+                                {% if item.discount_unit %}
+                                    {{ item.discount_unit }} {% else %}
+                                    0.00 {% endif %}
+                            </td>
+                            <td class="p-2 text-center flex items-center justify-center">
+
+
+                                <span id="product_quantity_{{ item.product_id }}"
+                                      class="px-4 ml-8">{{ item.quantity }}</span>
+
+                            </td>
+
+                            <td id="product_subtotal_{{ item.product_id }}"
+                                class="p-2 text-center">{{ item.subtotal }}</td>
+                            <td id="product_total_discount_{{ item.product_id }}"
+                                class="p-2 text-center">{{ item.total_discount }}</td>
+                            <td id="product_total_price_{{ item.product_id }}"
+                                class="p-2 text-center">{{ item.total_price }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center font-bold pl-10 italic">Total:</td>
+                        <td id="final_order_subtotal" class="p-2 text-center font-bold"
+                            style="text-decoration: underline;">{{ order.final_order_subtotal }}</td>
+                        <td id="final_order_discount" class="p-2 text-center font-bold"
+                            style="text-decoration: underline;">{{ order.final_order_discount }}</td>
+                        <td id="final_order_price" class="p-2 text-center font-bold pb-4"
+                            style="text-decoration: underline;">{{ order.final_order_price }}</td>
+                    </tr>
+
+                    </tbody>
+                </table>
+                <hr class="my-2 w-10/12 mx-auto border-t-2 border-blue-500 mt-6">
+
+                <form method="post">
+                {% csrf_token %}
+                    <div>
+                        <div class="flex justify-start items-center p-4">
+                            <label for="address" class="mr-4 font-bold">Select an address:</label>
+                            <div class="relative flex pl-6">
+                                <select id="address" name="address"
+                                        class="block w-full px-4 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 appearance-none bg-white hover:border-blue-500"
+                                        style="width: 300px;">
+                                    {% if addresses %}
+                                        {% for addr in addresses %}
+                                            <option value="{{ addr.id }}">{{ addr }}</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        <option value="">-------</option>
+                                    {% endif %}
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <a href="{% url 'customers:new-address' %}"
+                               class="text-white font-bold py-2 px-8 mx-4 rounded mr-2 flex items-center justify-center mb-4 mt-4"
+                               style="width: 250px; background-color: #4ade80; transition: background-color 0.3s;"
+                               onmouseover="this.style.backgroundColor='#65a30d';"
+                               onmouseout="this.style.backgroundColor='#4ade80';">
+                                Add New Address
+                            </a>
+                        </div>
+                        <div class="flex justify-start items-center p-4">
+                            <label for="discountCode" class="mr-4 font-bold">Enter Discount Code:</label>
+                            <div class="relative flex">
+                                <input id="discountCode" type="text" name="discountCode"
+                                       placeholder="Discount Code"
+                                       class="form-input mt-1 block w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 bg-white hover:border-blue-500"
+                                       style="width: 300px;">
+                                <button id="applyDiscountButton" type="submit" name="applyDiscount"
+                                        class=" text-white font-bold py-2 px-8 ml-4 rounded mr-2 flex items-center justify-center"
+                                        style="width: 250px;margin-top: 3px; background-color: #4ade80; transition: background-color 0.3s;"
+                                        onmouseover="this.style.backgroundColor='#65a30d';"
+                                        onmouseout="this.style.backgroundColor='#4ade80';">
+                                    Apply
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end p-4">
+                        <button id="clearButton" type="button" name="clearOrder"
+                                class="mx-2 bg-yellow-500 text-white px-4 py-2 rounded shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
+                            Clear
+                        </button>
+
+                        <button id="payButton" type="button" name="payment"
+                                class="mx-2 bg-blue-500 text-white px-4 py-2 rounded shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
+                            Checkout Now
+                        </button>
+                    </div>
+                </form>
+
+
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}

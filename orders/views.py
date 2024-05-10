@@ -1,4 +1,6 @@
 from django.http import JsonResponse
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
 from django.views import View
 import json
 from django.views.generic import UpdateView, TemplateView
@@ -6,7 +8,7 @@ from core.mixin import LoginRequiredMixin, NavbarMixin
 from customers.models import Customer
 from orders.models import Order, OrderItem
 from products.models import Product
-from .mixin import CartMixin
+from .mixin import CartInitializerMixin
 
 
 class AddToOrderItem(View):
@@ -49,7 +51,7 @@ class AddToOrderItem(View):
             return JsonResponse({'response': 'Product ID not provided'})
 
 
-class CartView(LoginRequiredMixin, CartMixin, NavbarMixin, UpdateView):
+class CartView(LoginRequiredMixin, CartInitializerMixin, NavbarMixin, UpdateView):
     template_name = 'orders/cart.html'
     model = Order
     context_object_name = 'order'
@@ -123,3 +125,25 @@ class CartView(LoginRequiredMixin, CartMixin, NavbarMixin, UpdateView):
 
         response = super().post(request, *args, **kwargs)
         return response
+
+
+class CheckoutView(LoginRequiredMixin, CartInitializerMixin, NavbarMixin, TemplateView):
+    template_name = 'orders/checkout-cart.html'
+
+    def get_object(self):
+        customer = Customer.objects.get(customer=self.request.user)
+        return Order.objects.get(is_paid=False, customer=customer)
+
+    def get_context_data(self, **kwargs):
+        customer = Customer.objects.get(customer=self.request.user)
+
+        context = super().get_context_data(**kwargs)
+        context['order'] = self.get_object().order_details()
+        context['addresses'] = customer.addresses.filter(is_deleted=False).order_by('-created_at')
+        return context
+
+    def post(self, request, *args, **kwargs):
+        # print(request.POST)
+        #
+        # return redirect(reverse_lazy('orders:checkout'))
+        pass

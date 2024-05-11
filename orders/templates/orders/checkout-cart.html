@@ -67,11 +67,11 @@
                             style="text-decoration: underline;">{{ order.final_order_subtotal }}</td>
                         <td id="final_order_discount" class="p-2 text-center font-bold"
                             style="text-decoration: underline;">{{ order.final_order_discount }}</td>
-                        <td id="final_order_price" class="p-2 text-center font-bold pb-4"
-                            style="text-decoration: underline;">{{ order.final_order_price }}</td>
+                        <td id="final_order_price" class="p-2 text-center font-bold"
+                            style="{% if not has_discount %} text-decoration: underline; color: red {% else %} text-decoration: line-through ; {% endif %} ">{{ order.final_order_price }}</td>
                     </tr>
 
-                    <tr style="display: none">
+                    <tr {% if not entered_discountCode %} style="display: none" {% endif %}>
                         <td class="p-2 text-center"></td>
                         <td class="p-2 text-center"></td>
                         <td class="p-2 text-center"></td>
@@ -79,9 +79,9 @@
                         <td id="final_order_subtotal" class="p-2 text-center font-bold"
                             style="text-decoration: underline;">{{ order.final_order_price }}</td>
                         <td id="final_order_discount" class="p-2 text-center font-bold"
-                            style="text-decoration: underline;">{{ order.discount_of_code }}</td>
-                        <td id="final_order_price" class="p-2 text-center font-bold pb-4"
-                            style="text-decoration: underline;">{{ order.final_order_price_after_discount_code }}</td>
+                            style="text-decoration: underline; color: #fc5318">- {{ discount_of_code }}</td>
+                        <td id="final_order_price" class="p-2 text-center font-bold "
+                            style="text-decoration: underline; color: red">{{ final_order_price_after_discount_code }}</td>
                     </tr>
 
                     </tbody>
@@ -89,21 +89,22 @@
                 <hr class="my-2 w-10/12 mx-auto border-t-2 border-blue-500 mt-6">
 
                 <form method="post">
-                {% csrf_token %}
+                    {% csrf_token %}
                     <div>
                         <div class="flex justify-start items-center p-4">
-                            <label for="address" class="mr-4 font-bold">Select an address:</label>
+                            <label for="id_address" class="mr-4 font-bold">Select an address:</label>
                             <div class="relative flex pl-6">
-                                <select id="address" name="address"
+                                <select id="id_address" name="address"
                                         class="block w-full px-4 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 appearance-none bg-white hover:border-blue-500"
                                         style="width: 300px;">
-                                    {% if addresses %}
-                                        {% for addr in addresses %}
-                                            <option value="{{ addr.id }}">{{ addr }}</option>
-                                        {% endfor %}
-                                    {% else %}
-                                        <option value="">-------</option>
-                                    {% endif %}
+                                    <option {% if not selected_address %} value="{{ addresses.first.id }}" {% else %}
+                                                                          value="{{ selected_address.id }}" {% endif %}>
+                                        {% if not selected_address %} {{ addresses.first }} {% else %}
+                                            {{ selected_address }} {% endif %}
+                                    </option>
+                                    {% for address in addresses|slice:"1:" %}
+                                        <option value="{{ address.id }}">{{ address }}</option>
+                                    {% endfor %}
                                 </select>
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                     <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
@@ -121,15 +122,22 @@
                                 Add New Address
                             </a>
                         </div>
+
+                        {% if form.address.errors %}
+                            <div class="text-red-500">
+                                {{ form.address.errors }}
+                            </div>
+                        {% endif %}
+
                         <div class="flex justify-start items-center p-4">
                             <label for="discountCode" class="mr-4 font-bold">Enter Discount Code:</label>
                             <div class="relative flex">
-                                <input id="discountCode" type="text" name="discountCode"
-                                       placeholder="Discount Code"
+                                <input id="discountCode" type="text" name="discount_code" placeholder="Discount Code"
+                                        {% if entered_discountCode %} value="{{ entered_discountCode }} {% endif %}"
                                        class="form-input mt-1 block w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 bg-white hover:border-blue-500"
                                        style="width: 300px;">
                                 <button id="applyDiscountButton" type="submit"
-                                        class=" text-white font-bold py-2 px-8 ml-4 rounded mr-2 flex items-center justify-center"
+                                        class="text-white font-bold py-2 px-8 ml-4 rounded mr-2 flex items-center justify-center"
                                         style="width: 250px;margin-top: 3px; background-color: #4ade80; transition: background-color 0.3s;"
                                         onmouseover="this.style.backgroundColor='#65a30d';"
                                         onmouseout="this.style.backgroundColor='#4ade80';">
@@ -137,15 +145,21 @@
                                 </button>
                             </div>
                         </div>
+
+                        {% if form.discount_code.errors %}
+                            <div class="text-red-500">
+                                {{ form.discount_code.errors }}
+                            </div>
+                        {% endif %}
+
                     </div>
 
                     <div class="flex justify-end p-4">
                         <a href="{% url 'orders:cart' %}"
-                                class="mx-2 bg-yellow-500 text-white px-4 py-2 rounded shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
+                           class="mx-2 bg-yellow-500 text-white px-4 py-2 rounded shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
                             Edit Cart
                         </a>
-
-                        <button id="payButton" type="button" name="payment"
+                        <button id="payButton" type="submit"
                                 class="mx-2 bg-blue-500 text-white px-4 py-2 rounded shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
                             Pay Now
                         </button>

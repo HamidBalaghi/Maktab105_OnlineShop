@@ -105,13 +105,17 @@ class CustomPasswordChangeView(LoginRequiredMixin, NavbarMixin, PasswordChangeVi
 class AddNewAddressView(LoginRequiredMixin, NavbarMixin, CreateView):
     template_name = 'customers/new-address.html'
     form_class = NewAddressForm
-    success_url = reverse_lazy('customers:address')
+
+    def get_success_url(self):
+        next_url = self.request.COOKIES.get('next_url_checkout')
+        if next_url:
+            return reverse_lazy('orders:checkout')
+        return reverse_lazy('customers:address')
 
     def form_valid(self, form):
         customer = Customer.objects.get(customer=self.request.user)
         form.instance.customer = customer
 
-        super().form_valid(form)
         return super().form_valid(form)
 
 
@@ -126,7 +130,7 @@ class ShowAddressView(LoginRequiredMixin, NavbarMixin, TemplateView):
 
 
 class DeleteAddressView(DeleteAddressPermission, NavbarMixin, View):
-    
+
     def get(self, request, *args, **kwargs):
         address = get_object_or_404(Address, pk=self.kwargs['pk'])
         address.delete()

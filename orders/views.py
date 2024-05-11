@@ -1,14 +1,16 @@
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views import View
 import json
-from django.views.generic import UpdateView, TemplateView
+from django.views.generic import UpdateView, TemplateView, FormView
 from core.mixin import LoginRequiredMixin, NavbarMixin
-from customers.models import Customer
+from customers.models import Customer, Address
 from orders.models import Order, OrderItem
-from products.models import Product
+from products.models import Product, Discount
 from .mixin import CartInitializerMixin
+from .forms import CheckoutForm
+from orders.models import DiscountCode
 
 
 class AddToOrderItem(View):
@@ -130,20 +132,61 @@ class CartView(LoginRequiredMixin, CartInitializerMixin, NavbarMixin, UpdateView
 class CheckoutView(LoginRequiredMixin, CartInitializerMixin, NavbarMixin, TemplateView):
     template_name = 'orders/checkout-cart.html'
 
-    def get_object(self):
-        customer = Customer.objects.get(customer=self.request.user)
-        return Order.objects.get(is_paid=False, customer=customer)
-
     def get_context_data(self, **kwargs):
-        customer = Customer.objects.get(customer=self.request.user)
-
         context = super().get_context_data(**kwargs)
-        context['order'] = self.get_object().order_details()
+        customer = Customer.objects.get(customer=self.request.user)
         context['addresses'] = customer.addresses.filter(is_deleted=False).order_by('-created_at')
+        context['order'] = self.get_order_details(customer)
         return context
 
     def post(self, request, *args, **kwargs):
-        # print(request.POST)
-        #
-        # return redirect(reverse_lazy('orders:checkout'))
-        pass
+        customer = Customer.objects.get(customer=self.request.user)
+        order = Order.objects.get(customer=customer, is_paid=False, is_deleted=False)
+
+        form = self.get_form(request.POST)
+        if form.is_valid():
+            address_id = form.cleaned_data.get('address')
+            discount_code = form.cleaned_data.get('discount_code')
+
+            selected_address = Address.objects.get(id=address_id)
+
+            if discount_code:
+                has_discount = True
+                discount = DiscountCode.objects.get(code=discount_code)
+                order_price = order.order_details()['final_order_price']
+                if discount.is_percent_type:
+                    if (order_price - (order_price * (1 - discount.amount / 100))) < discount.max_discount:
+                        final_price_after_discount = order_price * (1 - discount.amount / 100)
+                    else:
+                        final_price_after_discount = order_price - discount.max_discount
+                else:
+                    if order_price - discount.amount < 0:
+                        final_price_after_discount = 0
+                    else:
+                        final_price_after_discount = order_price - discount.amount
+            else:
+                final_price_after_discount = 0
+                has_discount = False
+
+            discount_of_code = order.order_details()['final_order_price'] - final_price_after_discount
+            additional_context = {'final_order_price_after_discount_code': final_price_after_discount,
+                                  'entered_discountCode': discount_code,
+                                  'discount_of_code': discount_of_code,
+                                  'selected_address': selected_address,
+                                  'has_discount': has_discount}
+
+            return self.render_to_response(self.get_context_data(form=form, **additional_context))
+
+        else:
+            context = self.get_context_data(form=form)
+            return self.render_to_response(context)
+
+    def get_order_details(self, customer):
+        return Order.objects.get(is_paid=False, customer=customer).order_details()
+
+    def get_form(self, data=None):
+        customer = Customer.objects.get(customer=self.request.user)
+        form = CheckoutForm(data)
+        form.fields['address'].choices = [(addr.id, addr) for addr in
+                                          customer.addresses.filter(is_deleted=False).order_by('-created_at')]
+        return form

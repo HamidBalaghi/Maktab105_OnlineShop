@@ -54,5 +54,6 @@ class CartInitializerMixin:
 
         response = super().dispatch(request, *args, **kwargs)
         response.delete_cookie('product_counts')
+        response.delete_cookie('next_url_checkout')
 
         return response

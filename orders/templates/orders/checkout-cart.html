@@ -71,6 +71,19 @@
                             style="text-decoration: underline;">{{ order.final_order_price }}</td>
                     </tr>
 
+                    <tr style="display: none">
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center font-bold pl-10 italic">Final Amount:</td>
+                        <td id="final_order_subtotal" class="p-2 text-center font-bold"
+                            style="text-decoration: underline;">{{ order.final_order_price }}</td>
+                        <td id="final_order_discount" class="p-2 text-center font-bold"
+                            style="text-decoration: underline;">{{ order.discount_of_code }}</td>
+                        <td id="final_order_price" class="p-2 text-center font-bold pb-4"
+                            style="text-decoration: underline;">{{ order.final_order_price_after_discount_code }}</td>
+                    </tr>
+
                     </tbody>
                 </table>
                 <hr class="my-2 w-10/12 mx-auto border-t-2 border-blue-500 mt-6">
@@ -115,7 +128,7 @@
                                        placeholder="Discount Code"
                                        class="form-input mt-1 block w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 bg-white hover:border-blue-500"
                                        style="width: 300px;">
-                                <button id="applyDiscountButton" type="submit" name="applyDiscount"
+                                <button id="applyDiscountButton" type="submit"
                                         class=" text-white font-bold py-2 px-8 ml-4 rounded mr-2 flex items-center justify-center"
                                         style="width: 250px;margin-top: 3px; background-color: #4ade80; transition: background-color 0.3s;"
                                         onmouseover="this.style.backgroundColor='#65a30d';"
@@ -127,14 +140,14 @@
                     </div>
 
                     <div class="flex justify-end p-4">
-                        <button id="clearButton" type="button" name="clearOrder"
+                        <a href="{% url 'orders:cart' %}"
                                 class="mx-2 bg-yellow-500 text-white px-4 py-2 rounded shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
-                            Clear
-                        </button>
+                            Edit Cart
+                        </a>
 
                         <button id="payButton" type="button" name="payment"
                                 class="mx-2 bg-blue-500 text-white px-4 py-2 rounded shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
-                            Checkout Now
+                            Pay Now
                         </button>
                     </div>
                 </form>

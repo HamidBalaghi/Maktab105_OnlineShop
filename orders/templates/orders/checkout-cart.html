@@ -100,7 +100,7 @@
                                     </svg>
                                 </div>
                             </div>
-                            <a href="{% url 'customers:new-address' %}"
+                            <a href="{% url 'customers:new-address' %}" id="addNewAddress"
                                class="text-white font-bold py-2 px-8 mx-4 rounded mr-2 flex items-center justify-center mb-4 mt-4"
                                style="width: 250px; background-color: #4ade80; transition: background-color 0.3s;"
                                onmouseover="this.style.backgroundColor='#65a30d';"
@@ -144,6 +144,14 @@
         </div>
     </div>
 
-
+    <script>
+        document.getElementById("addNewAddress").addEventListener("click", function () {
+            var currentUrl = "http://127.0.0.1:8000/en/checkout/";
+            if (currentUrl.indexOf('login') === -1 && currentUrl.indexOf('signup') === -1 && currentUrl.indexOf('activation') === -1) {
+                // Set the cookie
+                document.cookie = "next_url_checkout=" + currentUrl + ";path=/";
+            }
+        });
+    </script>
 
 {% endblock %}

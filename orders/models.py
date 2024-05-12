@@ -2,9 +2,9 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from core.models import TimeStampMixin, LogicalMixin
 from customers.models import Customer, Address
-# from django.utils import timezone
+from django.utils import timezone
 from django.core.exceptions import ValidationError
-from products.models import Product
+from products.models import Product, Price
 from products.models import Discount as ProductDiscount
 from utils.validators import validate_not_in_past
 from django.db.models import UniqueConstraint, Q
@@ -22,6 +22,9 @@ class Order(LogicalMixin, TimeStampMixin):
                                 related_name='orders')
     is_paid = models.BooleanField(verbose_name=_("Is paid"), default=False)
     paid_time = models.DateTimeField(verbose_name=_("Paid time"), null=True, blank=True)
+    discount_code = models.ForeignKey('DiscountCode', verbose_name=_("Discount code"),
+                                      null=True, on_delete=models.SET_NULL, blank=True,
+                                      related_name='orders')
 
     def __str__(self):
         return f'{self.id}-{self.customer}'
@@ -36,6 +39,11 @@ class Order(LogicalMixin, TimeStampMixin):
         verbose_name = _("Order")
         verbose_name_plural = _("Orders")
         # todo: add constraint(just 1 not paid order)
+
+    def save(self, *args, **kwargs):
+        if self.is_paid and not self.paid_time:
+            self.paid_time = timezone.now()
+        super().save(*args, **kwargs)
 
     def order_details(self):
         temp = dict()
@@ -90,6 +98,8 @@ class OrderItem(LogicalMixin, TimeStampMixin):
                                          verbose_name=_("Product discount"),
                                          on_delete=models.SET_NULL, null=True, blank=True,
                                          related_name='order_items')
+    price = models.ForeignKey(Price, verbose_name=_("Price"), on_delete=models.CASCADE,
+                              null=True, blank=True, related_name='order_items')
 
     class Meta:
         constraints = [

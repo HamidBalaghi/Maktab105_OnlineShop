@@ -11,6 +11,7 @@ from django.urls import reverse_lazy
 from core.mixin import NavbarMixin, LoginRequiredMixin
 from django.contrib.auth.models import AnonymousUser
 from .permissions import DeleteAddressPermission
+from orders.models import Order
 
 
 class EditProfileView(NavbarMixin, TemplateView):
@@ -93,6 +94,8 @@ class ProfileView(LoginRequiredMixin, NavbarMixin, TemplateView):
         context['username'] = self.request.user.username
         context['name'] = Customer.objects.get(customer=self.request.user).full_name
         context['phone'] = Customer.objects.get(customer=self.request.user).phone_number
+        context['paid_orders_count'] = Order.objects.filter(customer__customer=self.request.user, is_paid=True).count()
+
         return context
 
 

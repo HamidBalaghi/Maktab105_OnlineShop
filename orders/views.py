@@ -186,7 +186,7 @@ class CheckoutView(LoginRequiredMixin, CartInitializerMixin, NavbarMixin, Templa
                 order.address = selected_address
                 order.is_paid = True
                 if request.POST.get('discount_code'):
-                    entered_discount_code = DiscountCode.objects.get(code=request.POST.get('discount_code'))
+                    entered_discount_code = DiscountCode.objects.get(code=request.POST.get('discount_code').split()[0])
                     order.discount_code = entered_discount_code
                     entered_discount_code.is_used = True  # expire discount code after use
                     entered_discount_code.save()

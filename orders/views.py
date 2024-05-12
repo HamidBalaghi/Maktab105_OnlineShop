@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
 from django.views import View
 import json
-from django.views.generic import UpdateView, TemplateView, FormView
+from django.views.generic import UpdateView, TemplateView, ListView
 from core.mixin import LoginRequiredMixin, NavbarMixin
 from customers.models import Customer, Address
 from orders.models import Order, OrderItem
@@ -223,3 +223,12 @@ class CheckoutView(LoginRequiredMixin, CartInitializerMixin, NavbarMixin, Templa
         form.fields['address'].choices = [(addr.id, addr) for addr in
                                           customer.addresses.filter(is_deleted=False).order_by('-created_at')]
         return form
+
+
+class PaidOrdersView(LoginRequiredMixin, NavbarMixin, ListView):
+    model = Order
+    template_name = 'orders/paid-carts.html'
+    context_object_name = 'orders'
+
+    def get_queryset(self):
+        return Order.global_objects.filter(is_paid=True, customer__customer=self.request.user)

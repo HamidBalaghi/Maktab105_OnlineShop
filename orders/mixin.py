@@ -19,7 +19,10 @@ class CartInitializerMixin:
         order = Order.objects.get(customer__customer=request.user, is_paid=False)
         order_items = order.order_items.select_related('product').all()
         for order_item in order_items:
-            if str(order_item.product.id) in selected_product:
+            if order_item.product.stock <= 0:
+                order_item.hard_delete()
+
+            elif str(order_item.product.id) in selected_product:
 
                 if order_item.quantity + selected_product[str(order_item.product.id)] >= order_item.product.stock:
                     order_item.quantity = order_item.product.stock

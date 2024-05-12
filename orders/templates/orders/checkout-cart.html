@@ -102,9 +102,17 @@
                                         {% if not selected_address %} {{ addresses.first }} {% else %}
                                             {{ selected_address }} {% endif %}
                                     </option>
-                                    {% for address in addresses|slice:"1:" %}
-                                        <option value="{{ address.id }}">{{ address }}</option>
-                                    {% endfor %}
+                                    {% if not selected_address %}
+                                        {% for address in addresses|slice:"1:" %}
+                                            <option value="{{ address.id }}">{{ address }}</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for address in addresses %}
+                                            {% if address != selected_address %}
+                                                <option value="{{ address.id }}">{{ address }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
                                 </select>
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                     <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"

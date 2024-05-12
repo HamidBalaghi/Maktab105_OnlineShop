@@ -81,7 +81,7 @@ class CartView(LoginRequiredMixin, CartInitializerMixin, NavbarMixin, UpdateView
         if user_request == 'deleteItem':
             try:
                 item = OrderItem.objects.get(order=order, product_id=int(product_id), is_deleted=False)
-                item.delete()
+                item.hard_delete()
                 response_message = f"{item.product.brand}/{item.product.name} successfully deleted"
                 return JsonResponse({'response': response_message})
             except:
@@ -96,7 +96,7 @@ class CartView(LoginRequiredMixin, CartInitializerMixin, NavbarMixin, UpdateView
                     response_message = f"{item.product.brand}/{item.product.name} decreased"
                     return JsonResponse({'response': response_message})
                 else:
-                    item.delete()
+                    item.hard_delete()
                     response_message = f"{item.product.brand}/{item.product.name} removed from cart"
                     return JsonResponse({'response': response_message})
             except:
@@ -169,14 +169,47 @@ class CheckoutView(LoginRequiredMixin, CartInitializerMixin, NavbarMixin, Templa
                 has_discount = False
 
             discount_of_code = order.order_details()['final_order_price'] - final_price_after_discount
+            # Send needed information to template
             additional_context = {'final_order_price_after_discount_code': final_price_after_discount,
                                   'entered_discountCode': discount_code,
                                   'discount_of_code': discount_of_code,
                                   'selected_address': selected_address,
                                   'has_discount': has_discount}
 
+            # manage payment
+            if 'payment' in request.POST:
+
+                if not selected_address.has_paid_order:
+                    selected_address.has_paid_order = True
+                    selected_address.save()
+
+                order.address = selected_address
+                order.is_paid = True
+                if request.POST.get('discount_code'):
+                    entered_discount_code = DiscountCode.objects.get(code=request.POST.get('discount_code'))
+                    order.discount_code = entered_discount_code
+                    entered_discount_code.is_used = True  # expire discount code after use
+                    entered_discount_code.save()
+
+                order.save()
+
+                for item in order.order_items.filter(is_deleted=False):
+                    item.product_discount = item.product.discounts.first()
+                    item.price = item.product.prices.first()  # Saving related price of product, at the time of purchase
+
+                    product = item.product
+                    product.stock -= item.quantity  # Decrease stock of product after purchase
+
+                    item.save()
+                    product.save()
+
+                Order.objects.create(customer=customer)
+                return redirect(reverse_lazy('orders:cart'))  # todo: redirect to paid orders
+
+            #  redirect checkout if clicked on 'Apply', and send needed context
             return self.render_to_response(self.get_context_data(form=form, **additional_context))
 
+        # if form was invalid
         else:
             context = self.get_context_data(form=form)
             return self.render_to_response(context)

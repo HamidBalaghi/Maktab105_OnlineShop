@@ -203,7 +203,7 @@ class CheckoutView(LoginRequiredMixin, CartInitializerMixin, NavbarMixin, Templa
                     item.save()
                     product.save()
 
-                Order.objects.create(customer=customer)
+                Order.objects.create(customer=customer)  # Create a new Order after Payment
                 return redirect(reverse_lazy('orders:cart'))  # todo: redirect to paid orders
 
             #  redirect checkout if clicked on 'Apply', and send needed context

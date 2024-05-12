@@ -62,29 +62,60 @@ class Order(LogicalMixin, TimeStampMixin):
         for order_item in self.order_items.all():
             total_price += order_item.order_item_details()[field]
         return total_price
-    # def validate_address_customer_match(self):
-    #     if self.address and self.address.customer != self.customer:
-    #         raise ValidationError("Address does not belong to the customer.")
-    #
-    # def clean(self):
-    #     self.validate_address_customer_match()
-    #     super().clean()
 
-    # class Meta:
-    #     constraints = [
-    #         models.CheckConstraint(
-    #             check=models.Q(address__isnull=True) | models.Q(address__customer=models.F('customer')),
-    #             name='order_address_customer_match'
-    #         )
-    #     ]
+    def calculate_order_total_prices_by_discount_code(self):
+        total_before_discount = self.order_details()['final_order_price']
+        if self.discount_code:
+            if self.discount_code.is_percent_type:
+                if (total_before_discount - (total_before_discount * (
+                        1 - self.discount_code.amount / 100))) < self.discount_code.max_discount:
+                    final_price_after_discount = total_before_discount * (1 - self.discount_code.amount / 100)
 
-    # def save(self, *args, **kwargs):
-    #     print(1)
-    #     if self.is_paid and not self.paid_time:  # If order is being marked as paid for the first time
-    #         self.paid_time = timezone.now()
-    #     elif self.is_paid and self.paid_time:  # If is_paid is already True and being set again
-    #         raise ValidationError("Order has already been paid.")
-    #     super().save(*args, **kwargs)
+                else:
+                    final_price_after_discount = total_before_discount - self.discount_code.max_discount
+
+            else:
+                if total_before_discount - self.discount_code.amount < 0:
+                    final_price_after_discount = 0
+
+                else:
+                    final_price_after_discount = total_before_discount - self.discount_code.amount
+
+            return round(final_price_after_discount, 2)
+        return round(total_before_discount, 2)
+
+    def calculate_order_total_discount_by_discount_code(self):
+        return round(
+            self.order_details()['final_order_subtotal'] - self.calculate_order_total_prices_by_discount_code(), 2)
+
+    @property
+    def invoice_number(self):
+        return self.id + 1000
+
+
+# def validate_address_customer_match(self):
+#     if self.address and self.address.customer != self.customer:
+#         raise ValidationError("Address does not belong to the customer.")
+#
+# def clean(self):
+#     self.validate_address_customer_match()
+#     super().clean()
+
+# class Meta:
+#     constraints = [
+#         models.CheckConstraint(
+#             check=models.Q(address__isnull=True) | models.Q(address__customer=models.F('customer')),
+#             name='order_address_customer_match'
+#         )
+#     ]
+
+# def save(self, *args, **kwargs):
+#     print(1)
+#     if self.is_paid and not self.paid_time:  # If order is being marked as paid for the first time
+#         self.paid_time = timezone.now()
+#     elif self.is_paid and self.paid_time:  # If is_paid is already True and being set again
+#         raise ValidationError("Order has already been paid.")
+#     super().save(*args, **kwargs)
 
 
 class OrderItem(LogicalMixin, TimeStampMixin):

@@ -1,14 +1,14 @@
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.views import View
 import json
-from django.views.generic import UpdateView, TemplateView, ListView
+from django.views.generic import UpdateView, TemplateView, ListView, DetailView
 from core.mixin import LoginRequiredMixin, NavbarMixin
 from customers.models import Customer, Address
 from orders.models import Order, OrderItem
-from products.models import Product, Discount
-from .mixin import CartInitializerMixin
+from products.models import Product
+from .mixin import CartInitializerMixin, OrderDetailMixin
 from .forms import CheckoutForm
 from orders.models import DiscountCode
 
@@ -232,3 +232,31 @@ class PaidOrdersView(LoginRequiredMixin, NavbarMixin, ListView):
 
     def get_queryset(self):
         return Order.global_objects.filter(is_paid=True, customer__customer=self.request.user)
+
+
+class OrderDetailsView(LoginRequiredMixin, OrderDetailMixin, NavbarMixin, DetailView):
+    model = Order
+    template_name = 'orders/paid-order-detail.html'
+    context_object_name = 'order'
+
+    def get_object(self):
+        order_id = int(self.kwargs.get('pk')) - 1000
+        return Order.objects.get(id=order_id)
+
+    def get_context_data(self, **kwargs):
+        customer = self.get_object().customer
+        order_id = int(self.kwargs.get('pk')) - 1000
+        context = super().get_context_data(**kwargs)
+        context['order'] = Order.objects.get(is_paid=True, customer=customer, id=order_id).paid_order_details()
+        context[
+            'final_order_price_after_discount_code'] = self.get_object().calculate_paid_order_total_prices_by_discount_code()
+        context['discount_of_code'] = context['order']['final_order_price'] - context[
+            'final_order_price_after_discount_code']
+        context['factor_code'] = self.get_object().invoice_number
+        context['paid_time'] = self.get_object().paid_time
+
+        context['province'] = Order.objects.get(is_paid=True, customer=customer, id=order_id).address.province
+        context['city'] = Order.objects.get(is_paid=True, customer=customer, id=order_id).address.city
+        context['address_details'] = Order.objects.get(is_paid=True, customer=customer, id=order_id).address.details
+        context['post_code'] = Order.objects.get(is_paid=True, customer=customer, id=order_id).address.post_code
+        return context

@@ -11,7 +11,7 @@
             <hr class="w-full border-gray-300 mb-4">
 
             {% for order in orders %}
-                <a href="#" class="w-full flex justify-center">
+                <a href="{% url 'orders:order-details' pk=order.id|add:1000 %}" class="w-full flex justify-center">
                     <div id="ttt"
                          class="flex justify-around items-center border border-gray-400 p-4 rounded m-1 bg-blue-100 my-4"
                          style="width: 95%;">
@@ -22,7 +22,7 @@
                         <div style="width: 22%;">
                             <span class="font-bold">Amount: </span>
                             <span class="italic"
-                                  style="text-decoration: underline;">{{ order.calculate_order_total_prices_by_discount_code }}</span>
+                                  style="text-decoration: underline;">{{ order.calculate_paid_order_total_prices_by_discount_code}}</span>
                         </div>
                         <div style="width: 22%;">
                             <span class="font-bold">Discount: </span>

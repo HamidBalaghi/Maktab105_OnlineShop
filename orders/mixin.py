@@ -69,6 +69,5 @@ class OrderDetailMixin:
         order_id = int(kwargs.get('pk')) - 1000
         order = get_object_or_404(Order, id=order_id)
         if not order.is_paid or (order.customer.customer != request.user and not request.user.is_staff):
-            print(request.user.is_staff)
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)

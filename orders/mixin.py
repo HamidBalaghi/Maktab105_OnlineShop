@@ -1,6 +1,8 @@
 import json
+from django.shortcuts import get_object_or_404
 from products.models import Product
 from .models import Order, OrderItem
+from django.core.exceptions import PermissionDenied
 
 
 class CartInitializerMixin:
@@ -60,3 +62,13 @@ class CartInitializerMixin:
         response.delete_cookie('next_url_checkout')
 
         return response
+
+
+class OrderDetailMixin:
+    def dispatch(self, request, *args, **kwargs):
+        order_id = int(kwargs.get('pk')) - 1000
+        order = get_object_or_404(Order, id=order_id)
+        if not order.is_paid or (order.customer.customer != request.user and not request.user.is_staff):
+            print(request.user.is_staff)
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)

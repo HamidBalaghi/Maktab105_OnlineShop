@@ -177,7 +177,7 @@ class CheckoutView(LoginRequiredMixin, CartInitializerMixin, NavbarMixin, Templa
                                   'has_discount': has_discount}
 
             # manage payment
-            if 'payment' in request.POST:
+            if 'payment' in request.POST and order.order_items.exists():
 
                 if not selected_address.has_paid_order:
                     selected_address.has_paid_order = True

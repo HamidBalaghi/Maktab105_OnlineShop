@@ -45,7 +45,7 @@ class Order(LogicalMixin, TimeStampMixin):
             self.paid_time = timezone.now()
         super().save(*args, **kwargs)
 
-    def order_details(self):
+    def order_details(self):  # Without Discount Code
         temp = dict()
         temp['owner'] = self.customer.full_name if self.customer.full_name else self.customer.customer.username
         temp['items'] = list()
@@ -57,14 +57,36 @@ class Order(LogicalMixin, TimeStampMixin):
         temp['final_order_price'] = temp['final_order_subtotal'] - temp['final_order_discount']
         return temp
 
+    def paid_order_details(self):
+        temp = dict()
+        temp['owner'] = self.customer.full_name if self.customer.full_name else self.customer.customer.username
+        temp['items'] = list()
+        # for order_item in self.order_items.filter(is_deleted=False):
+        for order_item in self.order_items.all():
+            temp['items'].append(order_item.paid_order_item_detail())
+        temp['final_order_subtotal'] = self.calculate_paid_order_total_prices('subtotal')
+        temp['final_order_discount'] = self.calculate_paid_order_total_prices('total_discount')
+        temp['final_order_price'] = temp['final_order_subtotal'] - temp['final_order_discount']
+        return temp
+
     def calculate_order_total_prices(self, field):
         total_price = 0
         for order_item in self.order_items.all():
             total_price += order_item.order_item_details()[field]
         return total_price
 
-    def calculate_order_total_prices_by_discount_code(self):
-        total_before_discount = self.order_details()['final_order_price']
+    def calculate_paid_order_total_prices(self, field):
+        total_price = 0
+        for order_item in self.order_items.all():
+            total_price += order_item.paid_order_item_detail()[field]
+        return total_price
+
+    def final_price_after_discount_code(self, cart_type: str):
+        if cart_type == 'unpaid':
+            total_before_discount = self.order_details()['final_order_price']
+        else:
+            total_before_discount = self.paid_order_details()['final_order_price']
+
         if self.discount_code:
             if self.discount_code.is_percent_type:
                 if (total_before_discount - (total_before_discount * (
@@ -83,6 +105,12 @@ class Order(LogicalMixin, TimeStampMixin):
 
             return round(final_price_after_discount, 2)
         return round(total_before_discount, 2)
+
+    def calculate_paid_order_total_prices_by_discount_code(self):
+        return self.final_price_after_discount_code('paid')
+
+    def calculate_order_total_prices_by_discount_code(self):
+        return self.final_price_after_discount_code('unpaid')
 
     def calculate_order_total_discount_by_discount_code(self):
         return round(
@@ -157,6 +185,26 @@ class OrderItem(LogicalMixin, TimeStampMixin):
         temp['product_price'] = self.product.prices.first().price
         temp['product_id'] = self.product.id
         temp['discount_unit'] = self.product.prices.first().discount_amount()
+        temp['quantity'] = self.quantity
+        temp['subtotal'] = temp['quantity'] * temp['product_price']
+        temp['total_discount'] = temp['quantity'] * temp['discount_unit']
+        temp['total_price'] = temp['subtotal'] - temp['total_discount']
+        temp['slug'] = self.product.slug
+        return temp
+
+    def paid_order_item_detail(self):
+        temp = dict()
+        temp['name'] = f"{self.product.brand}/{self.product.name}"
+        temp['product_price'] = self.price.price
+        temp['product_id'] = self.product.id
+        if self.product_discount:
+            if self.product_discount.is_percent_type:
+                temp['discount_unit'] = round(
+                    self.price.price - (self.price.price * (1 - self.product_discount.amount / 100)), 2)
+            else:
+                temp['discount_unit'] = round(self.product_discount.amount, 2)
+        else:
+            temp['discount_unit'] = 0
         temp['quantity'] = self.quantity
         temp['subtotal'] = temp['quantity'] * temp['product_price']
         temp['total_discount'] = temp['quantity'] * temp['discount_unit']

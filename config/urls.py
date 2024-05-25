@@ -10,6 +10,8 @@ urlpatterns = i18n_patterns(
     path('', include('products.urls')),
     path('', include('customers.urls')),
     path('', include('orders.urls')),
+    path('api/', include('orders.api.urls_api')),
 )
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "admin_interface",
     "colorfield",
     "django.contrib.admin",
+    'rest_framework',
     # 3Parties
 
     # local

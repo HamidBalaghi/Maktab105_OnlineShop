@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "colorfield",
     "django.contrib.admin",
     'rest_framework',
+    'rest_framework.authtoken',
     # 3Parties
 
     # local

@@ -1,6 +1,9 @@
 from django.urls import path
-from .views_api import AddToOrderItem
+from . import views_api
+from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
-    path('add-to-order-item/', AddToOrderItem.as_view(), name='api-add-to-order-item'),
+    path('add-to-order-item/', views_api.AddToOrderItem.as_view(), name='api-add-to-order-item'),
+    path('cart/', views_api.CartView.as_view(), name='api-cart'),
+    path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
 ]

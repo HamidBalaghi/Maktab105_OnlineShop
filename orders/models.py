@@ -179,6 +179,9 @@ class OrderItem(LogicalMixin, TimeStampMixin):
     def __str__(self):
         return f'{self.order} - {self.product} - {self.quantity}'
 
+    def item_name(self):
+        return f"{self.product.brand}/{self.product.name}"
+
     def order_item_details(self):
         temp = dict()
         temp['name'] = f"{self.product.brand}/{self.product.name}"

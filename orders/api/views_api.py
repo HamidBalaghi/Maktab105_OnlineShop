@@ -1,9 +1,13 @@
 import json
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from products.models import Product
-from .serializers import AddToOrderItemSerializer
+from .serializers import AddToOrderItemSerializer, OrderSerializer
+from .mixin import CartInitializerMixinAPI
+from orders.models import Order
 
 
 class AddToOrderItem(APIView):
@@ -56,3 +60,17 @@ class AddToOrderItem(APIView):
                 return Response({'response': 'Invalid product ID'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CartView(CartInitializerMixinAPI, APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request):
+        try:
+            order = Order.objects.get(customer__customer=request.user, is_paid=False)
+        except Order.DoesNotExist:
+            return Response({'error': 'Order not found'}, status=404)
+
+        serializer = OrderSerializer(order)
+        return Response(serializer.data)

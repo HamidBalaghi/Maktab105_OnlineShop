@@ -47,3 +47,17 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_order_total(self, obj):
         return f"{obj.order_details()['final_order_price']}"
+
+
+class EditOrderSerializer(serializers.Serializer):
+    delete_item = serializers.IntegerField(required=False)
+    increase_item = serializers.IntegerField(required=False)
+    decrease_item = serializers.IntegerField(required=False)
+    clear_order = serializers.IntegerField(required=False)
+
+    def validate(self, data):
+        if not any(data.get(field) is not None for field in
+                   ['delete_item', 'increase_item', 'decrease_item', 'clear_order']):
+            raise serializers.ValidationError(
+                "At least one of the fields must be provided: delete_item, increase_item, decrease_item, clear_order.")
+        return data

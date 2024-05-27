@@ -10,10 +10,11 @@ class OrderItemSerializer(serializers.ModelSerializer):
     product_name = serializers.SerializerMethodField()
     product_price = serializers.SerializerMethodField()
     product_discount = serializers.SerializerMethodField()
+    product_description = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderItem
-        fields = ('id', 'quantity', 'product_name', 'product_price', 'product_discount')
+        fields = ('id', 'quantity', 'product_name', 'product_price', 'product_discount', 'product_description')
 
     def get_product_name(self, obj):
         return f"{obj.product.brand}/{obj.product.name}"
@@ -23,6 +24,9 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     def get_product_discount(self, obj):
         return f"{obj.product.get_discount()[0]} {obj.product.get_discount()[1]}"
+
+    def get_product_description(self, obj):
+        return f"{obj.product.description}"
 
 
 class OrderSerializer(serializers.ModelSerializer):

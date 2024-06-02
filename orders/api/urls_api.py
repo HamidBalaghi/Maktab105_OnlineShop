@@ -8,4 +8,5 @@ urlpatterns = [
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     path('checkout/', views_api.CheckoutView.as_view(), name='api-checkout'),
     path('paid-orders/', views_api.PaidOrdersView.as_view(), name='api-paid-orders'),
+    path('order/<int:pk>/', views_api.OrderDetailView.as_view(), name='api-order-details'),
 ]

@@ -8,9 +8,11 @@ from orders.models import DiscountCode
 from customers.models import Address, Customer
 from products.models import Product
 from .serializers import AddToOrderItemSerializer, OrderSerializer, EditOrderSerializer, CheckoutAddressGETSerializer, \
-    CheckoutPOSTSerializer, PaidOrderSerializer
+    CheckoutPOSTSerializer, PaidOrderSerializer, OrderDetailSerializer
 from .mixin import CartInitializerMixinAPI
 from orders.models import Order, OrderItem
+from django.shortcuts import get_object_or_404
+from django.core.exceptions import PermissionDenied
 
 
 class AddToOrderItem(APIView):
@@ -233,3 +235,16 @@ class PaidOrdersView(generics.ListAPIView):
 
     def get_queryset(self):
         return Order.global_objects.filter(is_paid=True, customer__customer=self.request.user)
+
+
+class OrderDetailView(generics.RetrieveAPIView):
+    authentication_classes = [TokenAuthentication]
+    serializer_class = OrderDetailSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        order_id = int(self.kwargs.get('pk')) - 1000
+        order = get_object_or_404(Order, id=order_id)
+        if not order.is_paid or (order.customer.customer != self.request.user and not self.request.user.is_staff):
+            raise PermissionDenied
+        return order

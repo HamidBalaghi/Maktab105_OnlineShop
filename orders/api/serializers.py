@@ -108,3 +108,68 @@ class PaidOrderSerializer(serializers.ModelSerializer):
 
     def get_discount(self, obj):
         return obj.calculate_order_total_discount_by_discount_code()
+
+
+class PaidOrderItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.SerializerMethodField()
+    product_price = serializers.SerializerMethodField()
+    product_discount_value = serializers.SerializerMethodField()
+
+    class Meta:
+        model = OrderItem
+        fields = ('id', 'quantity', 'product_name', 'product_price', 'product_discount_value')
+
+    def get_product_name(self, obj):
+        return f"{obj.product.brand}/{obj.product.name}"
+
+    def get_product_price(self, obj):
+        return f"{obj.price.price}"
+
+    def get_product_discount_value(self, obj):
+        if obj.product_discount:
+            if obj.product_discount.is_percent_type:
+                return f"{obj.product_discount.amount}%"
+            else:
+                return f"{obj.product_discount.amount}$"
+        else:
+            return None
+
+
+class OrderDetailSerializer(serializers.ModelSerializer):
+    order_items = PaidOrderItemSerializer(many=True, read_only=True)
+    invoice_number = serializers.SerializerMethodField()
+    final_order_price_after_discount_code = serializers.SerializerMethodField()
+    discount_of_code = serializers.SerializerMethodField()
+    province = serializers.SerializerMethodField()
+    city = serializers.SerializerMethodField()
+    address_details = serializers.SerializerMethodField()
+    post_code = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Order
+        fields = [
+            'id', 'order_items', 'invoice_number',
+            'final_order_price_after_discount_code', 'discount_of_code',
+            'paid_time', 'province', 'city', 'address_details', 'post_code'
+        ]
+
+    def get_invoice_number(self, obj):
+        return obj.id + 1000
+
+    def get_final_order_price_after_discount_code(self, obj):
+        return obj.calculate_paid_order_total_prices_by_discount_code()
+
+    def get_discount_of_code(self, obj):
+        return obj.paid_order_details()['final_order_price'] - obj.calculate_paid_order_total_prices_by_discount_code()
+
+    def get_province(self, obj):
+        return obj.address.province
+
+    def get_city(self, obj):
+        return obj.address.city
+
+    def get_address_details(self, obj):
+        return obj.address.details
+
+    def get_post_code(self, obj):
+        return obj.address.post_code

@@ -7,4 +7,5 @@ urlpatterns = [
     path('cart/', views_api.CartView.as_view(), name='api-cart'),
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     path('checkout/', views_api.CheckoutView.as_view(), name='api-checkout'),
+    path('paid-orders/', views_api.PaidOrdersView.as_view(), name='api-paid-orders'),
 ]

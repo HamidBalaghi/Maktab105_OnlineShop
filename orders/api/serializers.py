@@ -89,3 +89,22 @@ class CheckoutPOSTSerializer(serializers.Serializer):
                                                              is_used=False).exists():
             raise serializers.ValidationError("Invalid discount code.")
         return discount_code
+
+
+class PaidOrderSerializer(serializers.ModelSerializer):
+    invoice_number = serializers.SerializerMethodField()
+    amount = serializers.SerializerMethodField()
+    discount = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Order
+        fields = ['id', 'invoice_number', 'amount', 'discount', 'paid_time']
+
+    def get_invoice_number(self, obj):
+        return obj.invoice_number
+
+    def get_amount(self, obj):
+        return obj.calculate_paid_order_total_prices_by_discount_code()
+
+    def get_discount(self, obj):
+        return obj.calculate_order_total_discount_by_discount_code()

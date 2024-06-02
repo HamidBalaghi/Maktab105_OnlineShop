@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from orders.models import Order, OrderItem
+from orders.models import Order, OrderItem, DiscountCode
+from customers.models import Address
 
 
 class AddToOrderItemSerializer(serializers.Serializer):
@@ -65,3 +66,26 @@ class EditOrderSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 "At least one of the fields must be provided: delete_item, increase_item, decrease_item, clear_order.")
         return data
+
+
+class CheckoutAddressGETSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = ['id', 'province', 'city', 'details', 'post_code']
+
+
+class CheckoutPOSTSerializer(serializers.Serializer):
+    selected_address = serializers.IntegerField(required=True)
+    discount_code = serializers.IntegerField(required=False)
+    payment = serializers.BooleanField(required=False)
+
+    def validate_selected_address(self, address_id):
+        if address_id < 1 or not Address.objects.filter(id=address_id).exists():
+            raise serializers.ValidationError("Invalid address")
+        return address_id
+
+    def validate_discount_code(self, discount_code):
+        if discount_code and not DiscountCode.objects.filter(code=discount_code, is_deleted=False,
+                                                             is_used=False).exists():
+            raise serializers.ValidationError("Invalid discount code.")
+        return discount_code

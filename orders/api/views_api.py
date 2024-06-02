@@ -148,8 +148,11 @@ class CheckoutView(CartInitializerMixinAPI, APIView):
         except Order.DoesNotExist:
             return Response({'error': 'Order not found'}, status=404)
 
-        serializer = OrderSerializer(order)
-        return Response(serializer.data)
+        order_serializer = OrderSerializer(order)
+
+        addresses = Address.objects.filter(customer__customer=request.user, is_deleted=False).order_by('-created_at')
+        addresses_serializer_data = CheckoutAddressGETSerializer(instance=addresses, many=True)
+        return Response({'Order': order_serializer.data, 'addresses': addresses_serializer_data.data})
 
     def post(self, request):
         serializer = CheckoutPOSTSerializer(data=request.data)

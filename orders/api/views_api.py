@@ -3,12 +3,12 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from orders.models import DiscountCode
 from customers.models import Address, Customer
 from products.models import Product
 from .serializers import AddToOrderItemSerializer, OrderSerializer, EditOrderSerializer, CheckoutAddressGETSerializer, \
-    CheckoutPOSTSerializer
+    CheckoutPOSTSerializer, PaidOrderSerializer
 from .mixin import CartInitializerMixinAPI
 from orders.models import Order, OrderItem
 
@@ -221,3 +221,12 @@ class CheckoutView(CartInitializerMixinAPI, APIView):
             return Response(result, status=200)
         else:
             return Response(serializer.errors, status=400)
+
+
+class PaidOrdersView(generics.ListAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = PaidOrderSerializer
+
+    def get_queryset(self):
+        return Order.global_objects.filter(is_paid=True, customer__customer=self.request.user)

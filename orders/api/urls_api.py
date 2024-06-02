@@ -6,4 +6,5 @@ urlpatterns = [
     path('add-to-order-item/', views_api.AddToOrderItem.as_view(), name='api-add-to-order-item'),
     path('cart/', views_api.CartView.as_view(), name='api-cart'),
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
+    path('checkout/', views_api.CheckoutView.as_view(), name='api-checkout'),
 ]

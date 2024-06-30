@@ -1,0 +1,330 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %} Cart {% endblock %}
+{% block content %}
+
+
+    <div class="min-h-screen bg-gray-100 p-4 mt-4">
+        <div class="max-w-6xl mx-auto shadow-md rounded-lg overflow-hidden">
+            <div class="bg-gray-800 flex justify-between text-white p-4 text-lg font-bold">
+                <span>{{ order.owner }}</span> <span class="text-gray-300">Hamid Online Shop </span></div>
+
+            <div class="p-4">
+
+
+                <table class="w-full border border-gray-200">
+                    <thead>
+                    <tr class="text-gray-500 font-bold">
+                        <th class="p-2 text-center">Product Name</th>
+                        <th class="p-2 text-center">Price/Unit</th>
+                        <th class="p-2 text-center">Discount/Unit</th>
+                        <th class=" text-center pl-9">Quantity</th>
+                        <th class="p-2 text-center">Subtotal</th>
+                        <th class="p-2 text-center">Discount</th>
+                        <th class="p-2 text-center">Total Price</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in order.items %}
+                        <tr class="row_{{ item.product_id }}">
+                            <td class="p-2 text-center">
+                                <a href="{% url 'products:product_detail' slug=item.slug pk=item.product_id %}"
+                                   style="text-decoration: none;"
+                                   onmouseover="style.textDecoration='underline';"
+                                   onmouseout="style.textDecoration='none';">
+                                    {{ item.name }}
+                                </a>
+                            </td>
+                            <td id="product_price_{{ item.product_id }}"
+                                class="p-2 text-center">{{ item.product_price }}</td>
+                            <td id="product_discount_{{ item.product_id }}" class="p-2 text-center">
+                                {% if item.discount_unit %}
+                                    {{ item.discount_unit }} {% else %}
+                                    0.00 {% endif %}
+                            </td>
+                            <td class="p-2 text-center flex items-center justify-center">
+                                <form method="post">
+                                    <button
+                                            type="button" name="deleteItem" value="{{ item.product_id }}"
+                                            onclick="deleteItemFunction('{{ item.product_id }}')"
+                                            class="hover:bg-gray-300 text-gray-800 font-bold py-1 px-2 mr-1 rounded-l">
+                                        🗑️
+                                    </button>
+                                </form>
+
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <button type="button" name="decrease" value="{{ item.product_id }}"
+                                            onclick="decreaseQuantity('{{ item.product_id }}')"
+                                            class="bg-gray-200 border hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded-l">
+                                        -
+                                    </button>
+                                </form>
+
+                                <span id="product_quantity_{{ item.product_id }}"
+                                      class="px-4">{{ item.quantity }}</span>
+
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <button type="button" name="increase" value="{{ item.product_id }}"
+                                            onclick="increaseQuantity('{{ item.product_id }}')"
+                                            class="bg-gray-200 border hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded-r">
+                                        +
+                                    </button>
+                                </form>
+                            </td>
+
+                            <td id="product_subtotal_{{ item.product_id }}"
+                                class="p-2 text-center">{{ item.subtotal }}</td>
+                            <td id="product_total_discount_{{ item.product_id }}"
+                                class="p-2 text-center">{{ item.total_discount }}</td>
+                            <td id="product_total_price_{{ item.product_id }}"
+                                class="p-2 text-center">{{ item.total_price }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center font-bold pl-10 italic">Total:</td>
+                        <td id="final_order_subtotal" class="p-2 text-center font-bold"
+                            style="text-decoration: underline;">{{ order.final_order_subtotal }}</td>
+                        <td id="final_order_discount" class="p-2 text-center font-bold"
+                            style="text-decoration: underline;">{{ order.final_order_discount }}</td>
+                        <td id="final_order_price" class="p-2 text-center font-bold"
+                            style="text-decoration: underline;">{{ order.final_order_price }}</td>
+                    </tr>
+
+
+                    </tbody>
+                </table>
+
+
+                <div class="flex justify-end p-4">
+                    <form id="clearForm" method="post">
+                        {% csrf_token %}
+                        <button id="clearButton" type="button" name="clearOrder"
+                                class="mx-2 bg-yellow-500 text-white px-4 py-2 rounded shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
+
+                            Clear
+                        </button>
+                    </form>
+
+                        <a id="checkoutLink" href="{% url 'orders:checkout' %}"
+                                class="mx-2 bg-blue-500 text-white px-4 py-2 rounded shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
+                            Checkout Now
+                        </a>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+
+
+
+    <script>
+        document.getElementById('clearButton').addEventListener('click', function (event) {
+            if (confirm('Are you sure you want to clear?')) {
+                // If confirmed, call the clearRows2 function
+                clearCart();
+            } else {
+                // If canceled, prevent the default form submission
+                event.preventDefault();
+            }
+        });
+    </script>
+
+    <script>
+        function clearCart() {
+            const finalOrderSubtotal = document.getElementById('final_order_subtotal');
+            const finalOrderDiscount = document.getElementById('final_order_discount');
+            const finalOrderPrice = document.getElementById('final_order_price');
+            const navMessage = document.getElementById('messages');
+            $.post('', {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                clearOrder: 'clearOrder' // You can provide any value you want here
+            }, (res) => {
+
+                if (res.response.includes('Order has been cleared')) {
+                    navMessage.innerText = res.response;
+                    finalOrderSubtotal.innerText = '0';
+                    finalOrderDiscount.innerText = '0';
+                    finalOrderPrice.innerText = '0';
+                    var rows = document.querySelectorAll('[class^="row_"]');
+                    rows.forEach(function (row) {
+                        row.remove();
+                    });
+                } else {
+                }
+            });
+        }
+    </script>
+
+
+
+
+    <script>
+        function deleteItemFunction(id) {
+            const navMessage = document.getElementById('messages');
+
+            const finalOrderSubtotal = document.getElementById('final_order_subtotal');
+            const finalOrderDiscount = document.getElementById('final_order_discount');
+            const finalOrderPrice = document.getElementById('final_order_price');
+
+            const productSubtotal = document.getElementById('product_subtotal_' + id);
+            const productTotalDiscount = document.getElementById('product_total_discount_' + id);
+            const productTotalPrice = document.getElementById('product_total_price_' + id);
+
+            const finalSubtotalValue = parseFloat(finalOrderSubtotal.innerText);
+            const productSubtotalValue = parseFloat(productSubtotal.innerText);
+            const newFinalSubtotal = finalSubtotalValue - productSubtotalValue;
+
+            const finalDiscountValue = parseFloat(finalOrderDiscount.innerText);
+            const productDiscountValue = productTotalDiscount.innerText === '_' ? 0 : parseFloat(productTotalDiscount.innerText);
+
+
+            const newFinalDiscount = finalDiscountValue - productDiscountValue;
+
+            const finalPriceValue = parseFloat(finalOrderPrice.innerText);
+            const productPriceValue = parseFloat(productTotalPrice.innerText);
+            const newFinalPrice = finalPriceValue - productPriceValue;
+
+            $.post('', {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                deleteItem: id
+            }, (res) => {
+                if (res.response.includes('successfully deleted')) {
+                    document.querySelector(`.row_${id}`).remove();
+                    finalOrderSubtotal.innerText = newFinalSubtotal.toFixed(2);
+                    finalOrderDiscount.innerText = newFinalDiscount.toFixed(2);
+                    finalOrderPrice.innerText = newFinalPrice.toFixed(2);
+                    navMessage.innerText = res.response;
+                }
+            });
+        }
+    </script>
+
+    <script>
+
+        function decreaseQuantity(id) {
+            const navMessage = document.getElementById('messages');
+
+            const finalOrderSubtotal = document.getElementById('final_order_subtotal');
+            const finalOrderDiscount = document.getElementById('final_order_discount');
+            const finalOrderPrice = document.getElementById('final_order_price');
+
+            const productSubtotal = document.getElementById('product_subtotal_' + id);
+            const productTotalDiscount = document.getElementById('product_total_discount_' + id);
+            const productTotalPrice = document.getElementById('product_total_price_' + id);
+
+            const productPrice = document.getElementById('product_price_' + id);
+            const productDiscount = document.getElementById('product_discount_' + id);
+            const productQuantity = document.getElementById('product_quantity_' + id);
+
+            const unitPriceValue = parseFloat(productPrice.innerText);
+            const unitDiscountValue = parseFloat(productDiscount.innerText);
+            const newQuantityValue = parseInt(productQuantity.innerText) - 1;
+
+            const finalSubtotalValue = parseFloat(finalOrderSubtotal.innerText);
+            const olsProductSubtotalValue = parseFloat(productSubtotal.innerText);
+            const newProductSubtotalValue = olsProductSubtotalValue - unitPriceValue;
+            const newFinalSubtotal = finalSubtotalValue - unitPriceValue;
+
+            const finalDiscountValue = parseFloat(finalOrderDiscount.innerText);
+            const oldProductDiscountValue = productTotalDiscount.innerText === '_' ? '0.0' : parseFloat(productTotalDiscount.innerText);
+            const newProductDiscountValue = oldProductDiscountValue - unitDiscountValue
+            const newFinalDiscount = finalDiscountValue - unitDiscountValue;
+
+            const oldFinalPrice = parseFloat(finalOrderPrice.innerText);
+            const newFinalPrice = oldFinalPrice + unitDiscountValue - unitPriceValue
+
+            const newProductTotalPriceValue = newProductSubtotalValue - newProductDiscountValue
+
+            $.post('', {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                decrease: id
+            }, (res) => {
+                if (res.response.includes('decreased')) {
+
+                    finalOrderSubtotal.innerText = newFinalSubtotal.toFixed(2);
+                    finalOrderDiscount.innerText = newFinalDiscount.toFixed(2);
+                    finalOrderPrice.innerText = newFinalPrice.toFixed(2);
+                    productQuantity.innerText = newQuantityValue
+                    productSubtotal.innerText = newProductSubtotalValue.toFixed(2)
+                    productTotalDiscount.innerText = newProductDiscountValue.toFixed(2)
+                    productTotalPrice.innerText = newProductTotalPriceValue.toFixed(2)
+                    navMessage.innerText = res.response;
+                } else {
+                    document.querySelector(`.row_${id}`).remove();
+                    finalOrderSubtotal.innerText = newFinalSubtotal.toFixed(2);
+                    finalOrderDiscount.innerText = newFinalDiscount.toFixed(2);
+                    finalOrderPrice.innerText = newFinalPrice.toFixed(2);
+                    navMessage.innerText = res.response;
+
+
+                }
+            });
+        }
+    </script>
+
+    <script>
+
+        function increaseQuantity(id) {
+            const navMessage = document.getElementById('messages');
+
+            const finalOrderSubtotal = document.getElementById('final_order_subtotal');
+            const finalOrderDiscount = document.getElementById('final_order_discount');
+            const finalOrderPrice = document.getElementById('final_order_price');
+
+            const productSubtotal = document.getElementById('product_subtotal_' + id);
+            const productTotalDiscount = document.getElementById('product_total_discount_' + id);
+            const productTotalPrice = document.getElementById('product_total_price_' + id);
+
+            const productPrice = document.getElementById('product_price_' + id);
+            const productDiscount = document.getElementById('product_discount_' + id);
+            const productQuantity = document.getElementById('product_quantity_' + id);
+
+            const unitPriceValue = parseFloat(productPrice.innerText);
+            const unitDiscountValue = parseFloat(productDiscount.innerText);
+            const newQuantityValue = parseInt(productQuantity.innerText) + 1;
+
+            const finalSubtotalValue = parseFloat(finalOrderSubtotal.innerText);
+            const olsProductSubtotalValue = parseFloat(productSubtotal.innerText);
+            const newProductSubtotalValue = olsProductSubtotalValue + unitPriceValue;
+            const newFinalSubtotal = finalSubtotalValue + unitPriceValue;
+
+            const finalDiscountValue = parseFloat(finalOrderDiscount.innerText);
+            const oldProductDiscountValue = productTotalDiscount.innerText === '_' ? '0.0' : parseFloat(productTotalDiscount.innerText);
+            const newProductDiscountValue = oldProductDiscountValue + unitDiscountValue
+            const newFinalDiscount = finalDiscountValue + unitDiscountValue;
+
+            const oldFinalPrice = parseFloat(finalOrderPrice.innerText);
+            const newFinalPrice = oldFinalPrice - unitDiscountValue + unitPriceValue
+
+            const newProductTotalPriceValue = newProductSubtotalValue - newProductDiscountValue
+
+            $.post('', {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                increase: id
+            }, (res) => {
+                if (res.response.includes('increase')) {
+
+                    finalOrderSubtotal.innerText = newFinalSubtotal.toFixed(2);
+                    finalOrderDiscount.innerText = newFinalDiscount.toFixed(2);
+                    finalOrderPrice.innerText = newFinalPrice.toFixed(2);
+                    productQuantity.innerText = newQuantityValue
+                    productSubtotal.innerText = newProductSubtotalValue.toFixed(2)
+                    productTotalDiscount.innerText = newProductDiscountValue.toFixed(2)
+                    productTotalPrice.innerText = newProductTotalPriceValue.toFixed(2)
+                    navMessage.innerText = res.response;
+                } else {
+                    navMessage.innerText = res.response;
+                }
+            });
+        }
+    </script>
+
+{% endblock %}

@@ -27,6 +27,8 @@ INSTALLED_APPS = [
     "admin_interface",
     "colorfield",
     "django.contrib.admin",
+    'rest_framework',
+    'rest_framework.authtoken',
     # 3Parties
 
     # local
@@ -170,9 +172,14 @@ CELERY_BROKER_BACKEND = "redis://localhost:6379/1"
 CELERY_RESULT_BACKEND = "redis://localhost:6379/2"
 
 CELERY_BEAT_SCHEDULE = {
-    'delete-every-ten-minutes': {
+    'delete-every-24-hours': {
         'task': 'accounts.tasks.delete_old_records',
         'schedule': timedelta(hours=24),
+    },
+    'delete-expired-product-discounts': {
+        'task': 'products.tasks.delete_expired_discounts',
+        'schedule': timedelta(hours=24),
+        # 'schedule': crontab(hour=0, minute=1),
     },
 }
 

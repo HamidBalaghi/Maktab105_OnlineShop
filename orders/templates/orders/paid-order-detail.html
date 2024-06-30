@@ -1,0 +1,157 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %} CheckOut {% endblock %}
+{% block content %}
+
+
+    <div class="min-h-screen bg-gray-100 p-4 mt-4">
+        <div class="max-w-6xl mx-auto shadow-md rounded-lg overflow-hidden">
+            <div class="bg-gray-800 flex flex-col text-white p-4 text-lg font-bold">
+                <div class="flex justify-between items-center mb-2">
+                    <span>{{ order.owner }}</span>
+                    <span class="text-gray-300">Hamid Online Shop </span>
+                </div>
+
+                <div class="flex justify-between items-center mb-2">
+                    <p class="text-gray-300 text-sm"><span style="color: lightgrey">Invoice number:</span> <span
+                            class="italic" style="text-decoration: underline">{{ factor_code }}</span></p>
+                    <p class="text-gray-300 text-sm"><span style="color: lightgrey">Paid time: </span> <span
+                            class="italic" style="text-decoration: underline">{{ paid_time|date:"F d, Y H:i" }}</span>
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="p-4">
+
+
+                <table class="w-full border border-gray-400 my-2 bg-gray-200">
+                    <thead>
+                    <tr class="text-gray-500 font-bold ">
+                        <th class="p-2 text-center">Product Name</th>
+                        <th class="p-2 text-center">Price/Unit</th>
+                        <th class="p-2 text-center">Discount/Unit</th>
+                        <th class=" text-center pl-9">Quantity</th>
+                        <th class="p-2 text-center">Subtotal</th>
+                        <th class="p-2 text-center">Discount</th>
+                        <th class="p-2 text-center">Total Price</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in order.items %}
+                        <tr class="row_{{ item.product_id }}">
+                            <td class="p-2 text-center">
+                                <a href="{% url 'products:product_detail' slug=item.slug pk=item.product_id %}"
+                                   style="text-decoration: none;"
+                                   onmouseover="style.textDecoration='underline';"
+                                   onmouseout="style.textDecoration='none';">
+                                    {{ item.name }}
+                                </a>
+                            </td>
+                            <td id="product_price_{{ item.product_id }}"
+                                class="p-2 text-center">{{ item.product_price }}</td>
+                            <td id="product_discount_{{ item.product_id }}" class="p-2 text-center">
+                                {% if item.discount_unit %}
+                                    {{ item.discount_unit }} {% else %}
+                                    0.00 {% endif %}
+                            </td>
+                            <td class="p-2 text-center flex items-center justify-center">
+
+
+                                <span id="product_quantity_{{ item.product_id }}"
+                                      class="px-4 ml-8">{{ item.quantity }}</span>
+
+                            </td>
+
+                            <td id="product_subtotal_{{ item.product_id }}"
+                                class="p-2 text-center">{{ item.subtotal }}</td>
+                            <td id="product_total_discount_{{ item.product_id }}"
+                                class="p-2 text-center">{{ item.total_discount }}</td>
+                            <td id="product_total_price_{{ item.product_id }}"
+                                class="p-2 text-center">{{ item.total_price }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center font-bold pl-10 italic">Total:</td>
+                        <td id="final_order_subtotal" class="p-2 text-center font-bold"
+                            style="text-decoration: underline;">{{ order.final_order_subtotal }}</td>
+                        <td id="final_order_discount" class="p-2 text-center font-bold"
+                            style="text-decoration: underline;">{{ order.final_order_discount }}</td>
+                        <td id="final_order_price" class="p-2 text-center font-bold"
+                            style="text-decoration: line-through ;">{{ order.final_order_price }}</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center"></td>
+                        <td class="p-2 text-center font-bold pl-10 italic">Final Amount:</td>
+                        <td id="final_order_subtotal" class="p-2 text-center font-bold"
+                            style="text-decoration: underline;">{{ order.final_order_price }}</td>
+                        <td id="final_order_discount" class="p-2 text-center font-bold"
+                            style="text-decoration: underline; color: #fc5318">- {{ discount_of_code }}</td>
+                        <td id="final_order_price" class="p-2 text-center font-bold "
+                            style="text-decoration: underline; color: red">{{ final_order_price_after_discount_code }}</td>
+                    </tr>
+
+                    </tbody>
+                </table>
+                <hr class="my-2 w-10/12 mx-auto border-t-2 border-blue-500 mt-6">
+            </div>
+            <div class="flex flex-col  justify-center items-center mb-8">
+                <h3 class="font-bold">Address</h3>
+
+
+                <div class="flex flex-col justify-center items-center border border-gray-400 p-4 rounded m-1 mb-4 bg-blue-100 my-4"
+                     style="width: 95%">
+
+
+                    <!-- top -->
+                    <div class="flex items-center justify-between ">
+
+                        <div class="flex  mx-2  p-4 rounded m-1  mx-10" >
+                            <div class=" flex mt-2">
+                                <span class="px-2 font-bold">  Province:</span>
+                                <span class="px-2 italic"
+                                      style="text-decoration: underline;"> {{ province }}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex  mx-2  p-4 rounded m-1  mx-10" >
+                            <div class=" flex mt-2 ">
+                                <span class="px-2 font-bold">  City:</span>
+                                <span class="px-2 italic"
+                                      style="text-decoration: underline;"> {{ city }}</span>
+                            </div>
+                        </div>
+
+
+                        <div class="flex  mx-2  p-4 rounded m-1  mx-10" >
+                            <div class=" flex mt-2 ">
+                                <span class="px-2 font-bold">  Post Code:</span>
+                                <span class="px-2 italic"
+                                      style="text-decoration: underline;"> {{ post_code }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /top -->
+
+                    <div class="flex items-center justify-center flex-col">
+
+                        <div class="flex mx-2  p-4 rounded m-1  mx-10" >
+                            <div class=" flex mt-2">
+                                <span class="px-2 font-bold">  Details:</span>
+                                <span class="px-2 italic"
+                                      style="text-decoration: underline;"> {{ address_details }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

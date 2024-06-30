@@ -33,7 +33,10 @@ class Address(LogicalMixin, TimeStampMixin):
     updated_at = None
     is_active = None
 
-    customer = models.ForeignKey(Customer, verbose_name=_("Customer"), on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer,
+                                 verbose_name=_("Customer"),
+                                 on_delete=models.CASCADE,
+                                 related_name='addresses')
     province = models.CharField(verbose_name=_("Province"), max_length=100)
     city = models.CharField(verbose_name=_("City"), max_length=100)
     details = models.TextField(verbose_name=_("Details"), )
@@ -46,7 +49,7 @@ class Address(LogicalMixin, TimeStampMixin):
     has_paid_order = models.BooleanField(verbose_name=_("Used in Order"), default=False)
 
     def __str__(self):
-        return f"{self.customer} - {self.province} - {self.city}"
+        return f"{self.province} - {self.city} - {self.post_code}"
 
     def delete(self):
         if self.has_paid_order:

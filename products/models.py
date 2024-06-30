@@ -28,6 +28,7 @@ class Product(LogicalMixin, TimeStampMixin):
 
     def product_details(self):
         temp = dict()
+        temp['product_id'] = self.id
         temp['name'] = self.name
         temp['brand'] = self.brand
         temp['description'] = self.description
@@ -41,7 +42,7 @@ class Product(LogicalMixin, TimeStampMixin):
         return temp
 
     def get_discount(self):
-        discount = self.discount.filter(is_deleted=False).first()
+        discount = self.discounts.filter(is_deleted=False).first()
         if discount and discount.expiration_date >= timezone.now().date():
             if discount.is_percent_type:
                 return discount.amount, '%'
@@ -50,10 +51,10 @@ class Product(LogicalMixin, TimeStampMixin):
         return None, None
 
     def product_price(self):
-        return self.price.get(is_deleted=False).price
+        return self.prices.get(is_deleted=False).price
 
     def final_price(self):
-        discount = self.discount.filter(is_deleted=False).first()
+        discount = self.discounts.filter(is_deleted=False).first()
         if discount is None or discount.expiration_date < timezone.now().date():
             return round(self.product_price(), 2)
         if discount.is_percent_type:
@@ -74,8 +75,23 @@ class Price(LogicalMixin, TimeStampMixin):
     product = models.ForeignKey(Product,
                                 verbose_name=_("Product"),
                                 on_delete=models.SET_NULL, null=True,
-                                related_name='price')
+                                related_name='prices')
     price = models.DecimalField(verbose_name=_("Price"), max_digits=15, decimal_places=2)
+
+    def price_after_discount(self):
+        if self.product.discounts.first():
+            if self.product.discounts.first().is_percent_type:
+                return round(self.price * (1 - (self.product.discounts.first().amount / 100)), 2)
+            else:
+                return (
+                    round(self.price - self.product.discounts.first().amount, 2)
+                    if (self.price - self.product.discounts.first().amount) > 0
+                    else 0
+                )
+        return round(self.price, 2)
+
+    def discount_amount(self):
+        return self.price - self.price_after_discount()
 
     class Meta:
         constraints = [
@@ -138,7 +154,7 @@ class Category(LogicalMixin, TimeStampMixin):
 
 
 class Discount(LogicalMixin, TimeStampMixin):
-    product = models.ForeignKey(Product, verbose_name=_("Product"), on_delete=models.CASCADE, related_name='discount')
+    product = models.ForeignKey(Product, verbose_name=_("Product"), on_delete=models.CASCADE, related_name='discounts')
     is_percent_type = models.BooleanField(verbose_name=_("Is percent type"), default=True)
     amount = models.DecimalField(verbose_name=_("Amount"),
                                  max_digits=15, decimal_places=2,

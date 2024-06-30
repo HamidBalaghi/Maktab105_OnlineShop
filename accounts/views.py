@@ -7,9 +7,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.views import View
 from django.core.cache import cache
 from .tasks import otp_sender
+from core.mixin import NavbarMixin
+from orders.models import Order
 
 
-class SignupView(CreateView):
+class SignupView(NavbarMixin, CreateView):
     form_class = CustomSignUpForm
     template_name = 'account/signup.html'
 
@@ -24,10 +26,13 @@ class CustomUserLoginView(View):
 
     def get(self, request, *args, **kwargs):
         form = CustomUserLoginForm()
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'form': form, 'current_url': 'login'})
 
     def post(self, request, *args, **kwargs):
         form = CustomUserLoginForm(request.POST)
+        # get next URL
+        next_url = request.COOKIES.get('next_url')
+
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
@@ -35,6 +40,12 @@ class CustomUserLoginView(View):
             if user and password:
                 if user.is_active:
                     login(request, user)
+                    # use next URL if exist then delete it
+                    if next_url:
+                        response = redirect(next_url)
+                        response.delete_cookie('next_url')
+                        return response
+
                     return redirect('products:home')
                 else:
                     otp_sender.delay(email=user.email, username=user.username)
@@ -43,12 +54,13 @@ class CustomUserLoginView(View):
             elif user:
                 otp_sender.delay(email=user.email, username=user.username)
                 return redirect('accounts:activation', pk=user.pk)
+
             else:
                 form.add_error(None, 'Invalid email or password')
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'form': form, 'current_url': 'login'})
 
 
-class UserActivationView(FormView):
+class UserActivationView(NavbarMixin, FormView):
     template_name = 'account/verification.html'
     form_class = VerifyForm
 
@@ -73,7 +85,7 @@ class UserActivationView(FormView):
                 cache.delete(f"{new_email}")
                 cache.delete(f"{self.pk}")
                 login(self.request, self.new_user)
-                return redirect('products:home')
+                return redirect('customers:profile')
 
         # login and signup validation
         otp_model = cache.get(f"{self.new_user.email}")
@@ -82,10 +94,19 @@ class UserActivationView(FormView):
                 if not self.new_user.is_active:
                     self.new_user.is_active = True
                     self.new_user.save(update_fields=['is_active'])
-                    Customer.objects.create(customer=self.new_user)
+                    customer = Customer.objects.create(customer=self.new_user)
+                    Order.objects.create(customer=customer)
 
                 cache.delete(f"{self.new_user.email}")
                 login(self.request, self.new_user)
+
+                # Check if next URL
+                next_url = self.request.COOKIES.get('next_url')
+                if next_url:
+                    response = redirect(next_url)
+                    response.delete_cookie('next_url')
+                    return response
+
                 return redirect('products:home')
 
         form.add_error(None, 'Invalid code or OTP expired.')
